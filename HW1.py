@@ -47,7 +47,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS + ПЛАВАЮЧА КАРТИНКА В ПРАВОМУ НИЖНЬОМУ КУТУ) ---
+# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
 <style>
 /* Плаваюча кнопка для коментарів */
@@ -70,17 +70,6 @@ custom_css = """
 }
 .floating-btn:hover {
     background-color: #7a0b3f !important;
-}
-
-/* Стиль для вашої картинки в правому нижньому куті (вище за кнопку коментарів або поруч) */
-.corner-image {
-    position: fixed;
-    bottom: 20px;
-    right: 100px; /* зсунуто вліво від кнопки коментарів, щоб вони не накладалися */
-    width: 110px;  /* розмір картинки можна змінити за потреби */
-    z-index: 999;
-    pointer-events: none; /* щоб картинка не перекривала кліки на інші елементи */
-    opacity: 0.9;
 }
 
 /* Зміна фону бокової панелі */
@@ -134,8 +123,201 @@ custom_css = """
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-# Відображення картинки з локального файлу (назву файлу змініть на вашу, якщо потрібно)
-if os.path.exists("girl_bow.png"):
-    st.markdown('<img src="data:image/png;base64,' + ... + '" class="corner-image">', unsafe_allow_html=True) 
-# Але в Streamlit найпростіше вивести картинку через вбудовану функцію або HTML:
-st.markdown('<img src="https://raw.githubusercontent.com/.../girl_bow.png" class="corner-image">', unsafe_allow_html=True) # або локальний шлях нижче:
+
+# --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
+st.sidebar.header("Filters")
+
+product_types = sorted(list(df['Label'].unique()))
+selected_products = st.sidebar.multiselect(
+    "Which type of product do you want?",
+    options=product_types
+)
+
+if selected_products:
+    ingredients_source_df = df[df['Label'].isin(selected_products)]
+else:
+    ingredients_source_df = df
+
+all_unique_ingredients = get_all_ingredients(ingredients_source_df)
+
+skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
+selected_skins = st.sidebar.multiselect(
+    "Skin type:", 
+    options=skin_types
+)
+
+all_brands = sorted(df['Brand'].dropna().unique())
+selected_brands = st.sidebar.multiselect(
+    "Brands:",
+    options=all_brands
+)
+
+selected_allergies = st.sidebar.multiselect(
+    "Avoided ingredients:",
+    options=all_unique_ingredients
+)
+
+if selected_brands:
+    price_df = df[df['Brand'].isin(selected_brands)]
+else:
+    price_df = df
+
+min_price = int(price_df['Price'].min())
+max_price = int(price_df['Price'].max())
+
+if min_price == max_price:
+    max_price += 1
+
+selected_price_range = st.sidebar.slider(
+    "Price range ($):",
+    min_value=min_price,
+    max_value=max_price,
+    value=(min_price, max_price)
+)
+
+sort_option = st.sidebar.radio(
+    "Sort by:",
+    ("relevance", "price increase", "price decrease")
+)
+
+st.sidebar.markdown("---")
+
+search_clicked = st.sidebar.button("Search", use_container_width=True)
+sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
+
+
+# --- ОСНОВНА ЧАСТИНА ---
+
+# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З ФІКСОВАНИМИ КОЛЬОРАМИ ТА ПІДСВІТКОЮ
+category_counts = df['Label'].value_counts().reset_index()
+category_counts.columns = ['Category', 'Count']
+
+# Жорстко закріплюємо кольори за кожною категорією
+fixed_colors = {
+    'Moisturizer': '#880e4f',
+    'Cleanser': '#ad1457',
+    'Face Mask': '#d81b60',
+    'Treatment': '#e91e63',
+    'Eye cream': '#ec407a',
+    'Sun protect': '#f06292'
+}
+
+# Додаємо стовпець прозорості/кольору залежно від обраних продуктів у фільтрі
+def get_sector_color(row):
+    cat = row['Category']
+    base_color = fixed_colors.get(cat, '#950e4e')
+    
+    if not selected_products or cat in selected_products:
+        return base_color
+    else:
+        # Робимо тусклим неактивні сектори
+        h = base_color.lstrip('#')
+        rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
+        return f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
+
+category_counts['Color'] = category_counts.apply(get_sector_color, axis=1)
+
+fig = px.pie(
+    category_counts, 
+    names='Category', 
+    values='Count', 
+    hole=0.4,
+    color='Category',
+    color_discrete_map=fixed_colors
+)
+
+fig.update_traces(
+    textposition='inside', 
+    textinfo='percent+label',
+    textfont=dict(color='white'),  # Примусово робимо текст білим для всіх секторів
+    marker=dict(
+        colors=category_counts['Color'],
+        line=dict(color='#ffffff', width=2)
+    )
+)
+
+fig.update_layout(
+    margin=dict(t=10, b=10, l=10, r=10),
+    height=400,
+    showlegend=True,
+    transition=dict(duration=500, easing='cubic-in-out')
+)
+
+st.plotly_chart(fig, use_container_width=True)
+st.markdown("---")
+
+
+# 2. РЕЗУЛЬТАТИ ПОШУКУ (З'являються після натискання Search або Sort)
+if search_clicked or sort_category_clicked:
+
+    with st.spinner('Choosing the best for you...'):
+        time.sleep(0.6)
+
+        filtered_df = df.copy()
+
+        if selected_products:
+            filtered_df = filtered_df[filtered_df['Label'].isin(selected_products)]
+
+        if selected_skins:
+            for skin in selected_skins:
+                filtered_df = filtered_df[filtered_df[skin] == 1]
+
+        if selected_brands:
+            filtered_df = filtered_df[filtered_df['Brand'].isin(selected_brands)]
+
+        if selected_allergies:
+            for allergy in selected_allergies:
+                 filtered_df = filtered_df[
+                    ~filtered_df['Ingredients'].str.lower().str.contains(allergy, na=False, regex=False)]
+
+        filtered_df = filtered_df[
+            (filtered_df['Price'] >= selected_price_range[0]) &
+            (filtered_df['Price'] <= selected_price_range[1])
+            ]
+
+        if sort_category_clicked:
+            filtered_df = filtered_df.sort_values(by=["Label", "Name"], ascending=[True, True])
+        else:
+            if sort_option == "price increase":
+                filtered_df = filtered_df.sort_values(by="Price", ascending=True)
+            elif sort_option == "price decrease":
+                filtered_df = filtered_df.sort_values(by="Price", ascending=False)
+
+    if not filtered_df.empty:
+        st.success(f"Products found: {len(filtered_df)}")
+        
+        for index, row in filtered_df.iterrows():
+            st.markdown(f"### {row['Name']} ({row['Brand']})")
+            st.write(f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
+            st.markdown("---")
+    else:
+        st.error("Unfortunately, we don't have any data about this product. Please change the parameters.")
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+# Якір для плаваючої кнопки коментарів
+st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
+
+st.subheader("Comments")
+st.write("Haven't found your favourite product? Have an idea for development? Text us!")
+
+# Форма коментарів
+with st.form("comment_form", clear_on_submit=True):
+    user_name = st.text_input("Name (not necessarily):")
+    new_comment = st.text_area("your comment:")
+    submit_button = st.form_submit_button("send")
+
+    if submit_button:
+        if new_comment.strip():
+            name_to_display = user_name.strip() if user_name.strip() else "Anonymous"
+            st.session_state.comments.append({"name": name_to_display, "text": new_comment})
+
+            st.balloons()
+            st.success("The comment is successfully added!")
+        else:
+            st.warning("The comment can't be empty.")
+
+if st.session_state.comments:
+    st.markdown("#### Comments:")
+    for c in reversed(st.session_state.comments):
+        st.info(f"**{c['name']}**: {c['text']}")
