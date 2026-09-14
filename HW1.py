@@ -41,12 +41,16 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
-st.title("Your personal assistant to make a great product choice")
+# --- КАСТОМНИЙ ЗАГОЛОВОК ---
+st.markdown(
+    "<h1 style='color: #950e4e;'>Your personal assistant to make a great product choice</h1>", 
+    unsafe_allow_html=True
+)
 
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
 <style>
-/* 1. Плаваюча кнопка для коментарів */
+/* Плаваюча кнопка для коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
@@ -68,12 +72,12 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* 2. Зміна фону бокової панелі */
+/* Зміна фону бокової панелі */
 [data-testid="stSidebar"] > div:first-child {
     background-color: #fc6794 !important;
 }
 
-/* 3. Білий текст для заголовків, міток (labels), радіокнопок */
+/* Білий текст для заголовків, міток (labels), радіокнопок */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
@@ -83,7 +87,7 @@ custom_css = """
     color: white !important;
 }
 
-/* 4. Білий колір для ПОВЗУНКА (цифри, кружечки, лінія) */
+/* Білий колір для ПОВЗУНКА (цифри, кружечки, лінія) */
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
@@ -110,29 +114,9 @@ custom_css = """
     background-color: white !important;
 }
 
-/* 5. Темний текст всередині полів вибору */
+/* Темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
-}
-
-/* 6. ЖОРСТКА ЗМІНА КОЛЬОРУ ТЕГІВ (#950e4e) */
-div[data-baseweb="select"] span[data-baseweb="tag"] {
-    background-color: #950e4e !important;
-    color: white !important;
-}
-
-/* Робимо хрестик на тегах білим */
-div[data-baseweb="select"] span[data-baseweb="tag"] svg {
-    fill: white !important;
-}
-
-/* 7. ЖОРСТКА ЗМІНА КОЛЬОРУ АКТИВНОЇ РАДІОКНОПКИ (#950e4e) */
-div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div {
-    background-color: #950e4e !important;
-    border-color: #950e4e !important;
-}
-div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div > div {
-    background-color: #950e4e !important;
 }
 </style>
 <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
@@ -153,7 +137,7 @@ selected_products = st.sidebar.multiselect(
 # 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
-    "Skin type:", 
+    "Оберіть ваш тип шкіри:", 
     options=skin_types
 )
 
@@ -166,7 +150,7 @@ selected_brands = st.sidebar.multiselect(
 
 # 4. Вибір алергій
 selected_allergies = st.sidebar.multiselect(
-    "Avoided components:",
+    "Avoided products:",
     options=all_unique_ingredients
 )
 
