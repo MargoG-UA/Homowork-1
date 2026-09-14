@@ -5,9 +5,12 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-# Ініціалізація стану для збереження коментарів
+# --- ІНІЦІАЛІЗАЦІЯ СТАНУ ---
 if 'comments' not in st.session_state:
     st.session_state.comments = []
+
+if 'splash_shown' not in st.session_state:
+    st.session_state.splash_shown = False
 
 
 @st.cache_data
@@ -41,11 +44,31 @@ def get_all_ingredients(df_subset):
 
 df = load_data()
 
+
+# --- ЛОГІКА СПЛЕШ-СКРИЇНУ (ПЕРШІ 5 СЕКУНД) ---
+if not st.session_state.splash_shown:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if os.path.exists("welcome_poster.jpg"):
+            st.image("welcome_poster.jpg", use_column_width=True)
+        else:
+            st.markdown(
+                "<h1 style='text-align: center; color: #950e4e;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
+                unsafe_allow_html=True
+            )
+    
+    time.sleep(5)
+    st.session_state.splash_shown = True
+    st.rerun()
+
+
 # --- КАСТОМНИЙ ЗАГОЛОВОК ---
 st.markdown(
     "<h1 style='color: #950e4e;'>Your personal assistant to make a great product choice</h1>", 
     unsafe_allow_html=True
 )
+
 
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
@@ -77,7 +100,7 @@ custom_css = """
     background-color: #fc6794 !important;
 }
 
-/* Білий текст для заголовків, міток (labels), радіокнопок у боковій панелі */
+/* Білий текст для заголовків, міток, радіокнопок у боковій панелі */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
@@ -87,7 +110,7 @@ custom_css = """
     color: white !important;
 }
 
-/* Білий колір для ПОВЗУНКА (цифри, кружечки, лінія) */
+/* Колір для ПОВЗУНКА */
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
@@ -109,11 +132,6 @@ custom_css = """
     background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-[data-testid="stSidebar"] .stSlider [role="slider"]:hover,
-[data-testid="stSidebar"] .stSlider [role="slider"]:active {
-    background-color: white !important;
-}
-
 /* Темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
@@ -121,6 +139,7 @@ custom_css = """
 </style>
 <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
 """
+
 st.markdown(custom_css, unsafe_allow_html=True)
 
 
@@ -192,7 +211,6 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
-# Жорстко закріплюємо кольори за кожною категорією
 fixed_colors = {
     'Moisturizer': '#880e4f',
     'Cleanser': '#ad1457',
@@ -202,7 +220,6 @@ fixed_colors = {
     'Sun protect': '#f06292'
 }
 
-# Додаємо стовпець прозорості/кольору залежно від обраних продуктів у фільтрі
 def get_sector_color(row):
     cat = row['Category']
     base_color = fixed_colors.get(cat, '#950e4e')
@@ -210,7 +227,6 @@ def get_sector_color(row):
     if not selected_products or cat in selected_products:
         return base_color
     else:
-        # Робимо тусклим неактивні сектори
         h = base_color.lstrip('#')
         rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
         return f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
@@ -229,7 +245,7 @@ fig = px.pie(
 fig.update_traces(
     textposition='inside', 
     textinfo='percent+label',
-    textfont=dict(color='white'),  # Примусово робимо текст білим для всіх секторів
+    textfont=dict(color='white'),
     marker=dict(
         colors=category_counts['Color'],
         line=dict(color='#ffffff', width=2)
@@ -247,7 +263,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.markdown("---")
 
 
-# 2. РЕЗУЛЬТАТИ ПОШУКУ (З'являються після натискання Search або Sort)
+# 2. РЕЗУЛЬТАТИ ПОШУКУ
 if search_clicked or sort_category_clicked:
 
     with st.spinner('Choosing the best for you...'):
