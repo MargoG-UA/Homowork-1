@@ -144,7 +144,7 @@ all_unique_ingredients = get_all_ingredients(ingredients_source_df)
 # 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
-    "Оберіть ваш тип шкіри:", 
+    "Skin type:", 
     options=skin_types
 )
 
@@ -157,7 +157,7 @@ selected_brands = st.sidebar.multiselect(
 
 # 4. Вибір алергій (тепер підтягує інгредієнти тільки з обраних продуктів)
 selected_allergies = st.sidebar.multiselect(
-    "Avoided products:",
+    "Avoided ingredients:",
     options=all_unique_ingredients
 )
 
