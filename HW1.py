@@ -188,7 +188,7 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 
 # --- ОСНОВНА ЧАСТИНА ---
 
-# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Без заголовка та без написів всередині)
+# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Без заголовка над нею, але з написами всередині)
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
@@ -200,7 +200,8 @@ fig = px.pie(
     color_discrete_sequence=px.colors.sequential.RdPu
 )
 
-fig.update_traces(textinfo='none')
+# Повертаємо назви категорій та відсотки всередину секторів
+fig.update_traces(textposition='inside', textinfo='percent+label')
 
 fig.update_layout(
     margin=dict(t=10, b=10, l=10, r=10),
