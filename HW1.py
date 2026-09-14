@@ -46,12 +46,12 @@ st.title("Your personal assistant to make a great product choice")
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
 <style>
-/* 1. Плаваюча кнопка для коментарів */
+/* 1. Плаваюча кнопка для коментарів (Тепер колір #950e4e) */
 .floating-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #FF4B4B;
+    background-color: #950e4e !important;
     color: white !important;
     border-radius: 50%;
     width: 60px;
@@ -65,7 +65,7 @@ custom_css = """
     transition: background-color 0.3s ease;
 }
 .floating-btn:hover {
-    background-color: #FF6666;
+    background-color: #7a0b3f !important;
 }
 
 /* 2. Зміна фону бокової панелі */
@@ -83,7 +83,6 @@ custom_css = """
 }
 
 /* 4. Білий колір для ПОВЗУНКА (цифри, кружечки, лінія) */
-/* Цифри по краях та поточне значення */
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
@@ -91,24 +90,20 @@ custom_css = """
     color: white !important;
 }
 
-/* Кружечки (thumbs) */
 [data-testid="stSidebar"] .stSlider [role="slider"] {
     background-color: white !important;
     border: 2px solid white !important;
     box-shadow: none !important;
 }
 
-/* Заповнена лінія (track) */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
     background-color: white !important;
 }
 
-/* Незаповнена частина лінії (щоб її було видно на рожевому фоні) */
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
     background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* Активний стан (щоб при наведенні не скидалось на червоний) */
 [data-testid="stSidebar"] .stSlider [role="slider"]:hover,
 [data-testid="stSidebar"] .stSlider [role="slider"]:active {
     background-color: white !important;
@@ -117,6 +112,16 @@ custom_css = """
 /* 5. Залишаємо темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
+}
+
+/* 6. Бордовий колір (#950e4e) для тегів вибору та активних радіокнопок */
+span[data-baseweb="tag"] {
+    background-color: #950e4e !important;
+}
+
+[data-testid="stSidebar"] .stRadio [role="radio"][aria-checked="true"] > div:first-child {
+    background-color: #950e4e !important;
+    border-color: #950e4e !important;
 }
 </style>
 <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
