@@ -73,24 +73,48 @@ custom_css = """
     background-color: #fc6794 !important;
 }
 
-/* 3. Білий текст для заголовків, міток (labels), радіокнопок та тексту повзунка в боковій панелі */
+/* 3. Білий текст для заголовків, міток (labels), радіокнопок */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
 [data-testid="stSidebar"] label p,
-[data-testid="stSidebar"] .stRadio p,
-[data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] div,
-[data-testid="stSidebar"] .stSlider div[role="slider"] div {
+[data-testid="stSidebar"] .stRadio p {
     color: white !important;
 }
 
-/* 4. Колір самої смужки повзунка (треку) на білий */
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div:nth-child(2),
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div:nth-child(3) {
+/* 4. Білий колір для ПОВЗУНКА (цифри, кружечки, лінія) */
+/* Цифри по краях та поточне значення */
+[data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
+[data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
+[data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
+[data-testid="stSidebar"] .stSlider p {
+    color: white !important;
+}
+
+/* Кружечки (thumbs) */
+[data-testid="stSidebar"] .stSlider [role="slider"] {
+    background-color: white !important;
+    border: 2px solid white !important;
+    box-shadow: none !important;
+}
+
+/* Заповнена лінія (track) */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
     background-color: white !important;
 }
 
-/* 5. Залишаємо темний текст всередині полів вибору (щоб його було добре видно на білому фоні поля) */
+/* Незаповнена частина лінії (щоб її було видно на рожевому фоні) */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
+    background-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Активний стан (щоб при наведенні не скидалось на червоний) */
+[data-testid="stSidebar"] .stSlider [role="slider"]:hover,
+[data-testid="stSidebar"] .stSlider [role="slider"]:active {
+    background-color: white !important;
+}
+
+/* 5. Залишаємо темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
 }
