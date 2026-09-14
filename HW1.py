@@ -1,6 +1,7 @@
 import os
 import time
 import re
+import base64
 import pandas as pd
 import streamlit as st
 
@@ -41,58 +42,89 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
-# --- КАСТОМНИЙ ЗАГОЛОВОК ІЗ ШРИФТОМ BILLION DOLLARS ---
-# Зверніть увагу: щоб цей шрифт відображався у всіх користувачів, 
-# він має бути встановлений на їхньому пристрої.
-st.markdown(
-    """
-    <h1 style="font-family: 'Billion Dollars', sans-serif;">
-        Your personal assistant to make a great product choice
-    </h1>
-    """, 
-    unsafe_allow_html=True
-)
 
-# --- ДОДАВАННЯ ПЛАВАЮЧОЇ КНОПКИ (HTML/CSS) ---
-floating_button_css = """
-<style>
-.floating-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background-color: #FF4B4B;
-    color: white !important;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    text-align: center;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-    font-size: 30px;
-    line-height: 60px;
-    z-index: 1000;
-    text-decoration: none;
-    transition: background-color 0.3s ease;
-}
-.floating-btn:hover {
-    background-color: #FF6666;
-}
-</style>
-<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
-"""
-st.markdown(floating_button_css, unsafe_allow_html=True)
+# --- ФУНКЦІЯ ДЛЯ ПІДКЛЮЧЕННЯ КАСТОМНОГО ШРИФТУ ЧЕРЕЗ BASE64 ---
+def load_custom_font(font_path):
+    if os.path.exists(font_path):
+        with open(font_path, "rb") as f:
+            font_bytes = f.read()
+        encoded = base64.b64encode(font_bytes).decode()
+        return f"""
+        <style>
+        @font-face {{
+            font-family: 'Billion Dollars';
+            src: url(data:font/ttf;charset=utf-8;base64,{encoded}) format('truetype');
+        }}
+        .custom-title {{
+            font-family: 'Billion Dollars', sans-serif;
+            font-size: 42px;
+            color: #262730;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }}
+        .floating-btn {{
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #FF4B4B;
+            color: white !important;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            font-size: 30px;
+            line-height: 60px;
+            z-index: 1000;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }}
+        .floating-btn:hover {{
+            background-color: #FF6666;
+        }}
+        </style>
+        """
+    else:
+        # Запасний варіант, якщо файл шрифту ще не додали в папку
+        return """
+        <style>
+        .custom-title {
+            font-family: sans-serif;
+            font-size: 42px;
+            font-weight: bold;
+        }
+        .floating-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            background-color: #FF4B4B; color: white !important;
+            border-radius: 50%; width: 60px; height: 60px;
+            text-align: center; box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            font-size: 30px; line-height: 60px; z-index: 1000; text-decoration: none;
+        }
+        </style>
+        """
+
+# Завантажуємо стилі та шрифт (вкажіть точну назву файлу вашого шрифту, наприклад 'BillionDollars.ttf')
+font_css = load_custom_font("BillionDollars.ttf")
+st.markdown(font_css, unsafe_allow_html=True)
+
+# Виведення заголовка кастомним шрифтом
+st.markdown('<div class="custom-title">Your personal assistant to make a great product choice</div>', unsafe_allow_html=True)
+
+# Плаваюча кнопка для швидкого переходу до коментарів
+st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
 
 
-# --- БОКОВА ПАНЕЛЬ (ЛІВИЙ КРАЙ) ---
+# --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
 st.sidebar.header("Filters")
 
-# 1. Вибір продукту
+# 1. Вибір продукту (мульти-вибір)
 product_types = sorted(list(df['Label'].unique()))
 selected_products = st.sidebar.multiselect(
     "Which type of product do you want?",
     options=product_types
 )
 
-# 2. Тип шкіри
+# 2. Тип шкіри (мульти-вибір)
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
     "Оберіть ваш тип шкіри:", 
@@ -112,7 +144,7 @@ selected_allergies = st.sidebar.multiselect(
     options=all_unique_ingredients
 )
 
-# 5. Діапазон ціни (Динамічний)
+# 5. Динамічний діапазон ціни
 if selected_brands:
     price_df = df[df['Brand'].isin(selected_brands)]
 else:
@@ -131,7 +163,7 @@ selected_price_range = st.sidebar.slider(
     value=(min_price, max_price)
 )
 
-# 6. Сортування 
+# 6. Сортування
 sort_option = st.sidebar.radio(
     "Sort by:",
     ("relevance", "price increase", "price decrease")
@@ -139,12 +171,11 @@ sort_option = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-# Кнопки також розміщуємо в боковій панелі
 search_clicked = st.sidebar.button("Search", use_container_width=True)
 sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
 
 
-# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ ПОШУКУ) ---
+# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ) ---
 if search_clicked or sort_category_clicked:
 
     with st.spinner('Choosing the best for you...'):
@@ -152,32 +183,26 @@ if search_clicked or sort_category_clicked:
 
         filtered_df = df.copy()
 
-        # Фільтрація по обраним продуктам
         if selected_products:
             filtered_df = filtered_df[filtered_df['Label'].isin(selected_products)]
 
-        # Фільтрація по типу шкіри
         if selected_skins:
             for skin in selected_skins:
                 filtered_df = filtered_df[filtered_df[skin] == 1]
 
-        # Фільтрація по бренду
         if selected_brands:
             filtered_df = filtered_df[filtered_df['Brand'].isin(selected_brands)]
 
-        # Фільтрація по алергіях
         if selected_allergies:
             for allergy in selected_allergies:
                  filtered_df = filtered_df[
                     ~filtered_df['Ingredients'].str.lower().str.contains(allergy, na=False, regex=False)]
 
-        # Фільтрація по ціні
         filtered_df = filtered_df[
             (filtered_df['Price'] >= selected_price_range[0]) &
             (filtered_df['Price'] <= selected_price_range[1])
             ]
 
-        # Застосування сортування
         if sort_category_clicked:
             filtered_df = filtered_df.sort_values(by=["Label", "Name"], ascending=[True, True])
         else:
@@ -186,7 +211,6 @@ if search_clicked or sort_category_clicked:
             elif sort_option == "price decrease":
                 filtered_df = filtered_df.sort_values(by="Price", ascending=False)
 
-    # Вивід результатів 
     if not filtered_df.empty:
         st.success(f"Products found: {len(filtered_df)}")
         for index, row in filtered_df.iterrows():
@@ -198,13 +222,13 @@ if search_clicked or sort_category_clicked:
 
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-# Створюємо "якір" (anchor), на який посилається плаваюча кнопка
+# Якір для плаваючої кнопки коментарів
 st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
 
 st.subheader("Comments")
 st.write("Haven't found your favourite product? Have an idea for development? Text us!")
 
-# Форма для додавання коментаря
+# Форма коментарів
 with st.form("comment_form", clear_on_submit=True):
     user_name = st.text_input("Name (not necessarily):")
     new_comment = st.text_area("your comment:")
@@ -220,7 +244,6 @@ with st.form("comment_form", clear_on_submit=True):
         else:
             st.warning("The comment can't be empty.")
 
-# Виведення всіх збережених коментарів
 if st.session_state.comments:
     st.markdown("#### Comments:")
     for c in reversed(st.session_state.comments):
