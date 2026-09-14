@@ -23,24 +23,19 @@ def get_all_ingredients(df):
     for ingredients_str in df['Ingredients'].dropna():
         # Розбиваємо рядок на окремі інгредієнти
         raw_ingredients = [i.strip().lower() for i in ingredients_str.split(',')]
-
+        
         for i in raw_ingredients:
-            # Відкидаємо відверті помилки з датасету
             if 'name?' in i or not i:
                 continue
-
-            # Видаляємо все, що знаходиться в круглих дужках (наприклад, "(+/-)")
+            
             i = re.sub(r'\(.*?\)', '', i)
-            # Видаляємо всі спецсимволи (залишаємо лише літери англійського алфавіту, пробіли та дефіси)
             i = re.sub(r'[^a-z\s-]', '', i)
-            # Прибираємо зайві пробіли та дефіси по краях
             i = i.strip(' -')
-
+            
             if i:
-                # Очищаємо від подвійних пробілів всередині тексту
                 i = re.sub(r'\s+', ' ', i)
                 all_ingredients.add(i)
-
+                
     return sorted(list(all_ingredients))
 
 
@@ -49,29 +44,32 @@ all_unique_ingredients = get_all_ingredients(df)
 
 st.title("Your personal assistant to make a great product choice")
 
-# 1. Вибір продукту (мульти-вибір. Порожнє поле = всі категорії)
+# --- БОКОВА ПАНЕЛЬ (ЛІВИЙ КРАЙ) ---
+st.sidebar.header("Filters")
+
+# 1. Вибір продукту
 product_types = sorted(list(df['Label'].unique()))
-selected_products = st.multiselect(
+selected_products = st.sidebar.multiselect(
     "Which type of product do you want?",
     options=product_types
 )
 
-# 2. Тип шкіри (мульти-вибір. Порожнє поле = всі типи шкіри)
+# 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
-selected_skins = st.multiselect(
-    "Оберіть ваш тип шкіри:",
+selected_skins = st.sidebar.multiselect(
+    "Оберіть ваш тип шкіри:", 
     options=skin_types
 )
 
-# 3. Вибір бренду (мульти-вибір)
+# 3. Вибір бренду
 all_brands = sorted(df['Brand'].dropna().unique())
-selected_brands = st.multiselect(
+selected_brands = st.sidebar.multiselect(
     "Brands:",
     options=all_brands
 )
 
-# 4. Вибір алергій (мульти-вибір з очищених інгредієнтів)
-selected_allergies = st.multiselect(
+# 4. Вибір алергій
+selected_allergies = st.sidebar.multiselect(
     "Avoided products:",
     options=all_unique_ingredients
 )
@@ -85,46 +83,43 @@ else:
 min_price = int(price_df['Price'].min())
 max_price = int(price_df['Price'].max())
 
-# Запобіжник: якщо всі продукти коштують однаково
 if min_price == max_price:
     max_price += 1
 
-selected_price_range = st.slider(
+selected_price_range = st.sidebar.slider(
     "Price range ($):",
     min_value=min_price,
     max_value=max_price,
     value=(min_price, max_price)
 )
 
-# 6. Сортування
-sort_option = st.radio(
+# 6. Сортування 
+sort_option = st.sidebar.radio(
     "Sort by:",
     ("relevance", "price increase", "price decrease")
 )
 
-st.markdown("---")
+st.sidebar.markdown("---")
 
-# Створюємо дві колонки для кнопок, щоб вони були поруч
-col1, col2 = st.columns([1, 2])
-with col1:
-    search_clicked = st.button("Search")
-with col2:
-    sort_category_clicked = st.button("Sort by Categories")
+# Кнопки також розміщуємо в боковій панелі (одна під одною для краси)
+search_clicked = st.sidebar.button("Search", use_container_width=True)
+sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
 
-# Якщо натиснута БУДЬ-ЯКА з двох кнопок, запускаємо пошук
+
+# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ ПОШУКУ) ---
 if search_clicked or sort_category_clicked:
 
     # Анімація завантаження під час пошуку
     with st.spinner('Choosing the best for you...'):
-        time.sleep(0.6)  # Штучна затримка для візуального ефекту анімації
+        time.sleep(0.6)
 
-        filtered_df = df.copy()  # Починаємо з повного датасету
+        filtered_df = df.copy()
 
-        # Фільтрація по обраним продуктам (якщо хоча б щось обрано)
+        # Фільтрація по обраним продуктам
         if selected_products:
             filtered_df = filtered_df[filtered_df['Label'].isin(selected_products)]
 
-        # Фільтрація по типу шкіри (має підходити для ВСІХ обраних типів)
+        # Фільтрація по типу шкіри
         if selected_skins:
             for skin in selected_skins:
                 filtered_df = filtered_df[filtered_df[skin] == 1]
@@ -136,7 +131,7 @@ if search_clicked or sort_category_clicked:
         # Фільтрація по алергіях
         if selected_allergies:
             for allergy in selected_allergies:
-                filtered_df = filtered_df[
+                 filtered_df = filtered_df[
                     ~filtered_df['Ingredients'].str.lower().str.contains(allergy, na=False, regex=False)]
 
         # Фільтрація по ціні
@@ -147,22 +142,19 @@ if search_clicked or sort_category_clicked:
 
         # Застосування сортування
         if sort_category_clicked:
-            # Якщо натиснуто окрему кнопку категорій — сортуємо за Label
             filtered_df = filtered_df.sort_values(by=["Label", "Name"], ascending=[True, True])
         else:
-            # Інакше використовуємо звичайне сортування з радіокнопок
             if sort_option == "price increase":
                 filtered_df = filtered_df.sort_values(by="Price", ascending=True)
             elif sort_option == "price decrease":
                 filtered_df = filtered_df.sort_values(by="Price", ascending=False)
 
-    # Вивід результатів
+    # Вивід результатів 
     if not filtered_df.empty:
         st.success(f"Products found: {len(filtered_df)}")
         for index, row in filtered_df.iterrows():
             st.markdown(f"### {row['Name']} ({row['Brand']})")
-            st.write(
-                f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
+            st.write(f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
             st.markdown("---")
     else:
         st.error("Unfortunately, we don't have any data about this product. Please change the parameters.")
@@ -182,7 +174,6 @@ with st.form("comment_form", clear_on_submit=True):
             name_to_display = user_name.strip() if user_name.strip() else "Anonymous"
             st.session_state.comments.append({"name": name_to_display, "text": new_comment})
 
-            # Анімація кульок при успішному відправленні
             st.balloons()
             st.success("The comment is successfully added!")
         else:
