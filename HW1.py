@@ -3,7 +3,7 @@ import time
 import re
 import pandas as pd
 import streamlit as st
-import plotly.express as px  # Імпортуємо для красивих діаграм
+import plotly.express as px
 
 # Ініціалізація стану для збереження коментарів
 if 'comments' not in st.session_state:
@@ -186,7 +186,31 @@ search_clicked = st.sidebar.button("Search", use_container_width=True)
 sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
 
 
-# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ ТА ДІАГРАМА) ---
+# --- ОСНОВНА ЧАСТИНА ---
+
+# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Завжди відображається на головному екрані)
+st.markdown("### 📊 Overview: Products Distribution by Category")
+category_counts = df['Label'].value_counts().reset_index()
+category_counts.columns = ['Category', 'Count']
+
+fig = px.pie(
+    category_counts, 
+    names='Category', 
+    values='Count', 
+    hole=0.4,  # Кільцева діаграма
+    color_discrete_sequence=px.colors.sequential.RdPu
+)
+fig.update_traces(textposition='inside', textinfo='percent+label')
+fig.update_layout(
+    margin=dict(t=10, b=10, l=10, r=10),
+    height=400,
+    showlegend=True
+)
+st.plotly_chart(fig, use_container_width=True)
+st.markdown("---")
+
+
+# 2. РЕЗУЛЬТАТИ ПОШУКУ (З'являються після натискання Search або Sort)
 if search_clicked or sort_category_clicked:
 
     with st.spinner('Choosing the best for you...'):
@@ -225,27 +249,6 @@ if search_clicked or sort_category_clicked:
     if not filtered_df.empty:
         st.success(f"Products found: {len(filtered_df)}")
         
-        # --- ДОДАЄМО КРУГОВУ ДІАГРАМУ (DONUT CHART) ЗА КАТЕГОРІЯМИ ---
-        st.markdown("### 📊 Product Distribution by Category")
-        category_counts = filtered_df['Label'].value_counts().reset_index()
-        category_counts.columns = ['Category', 'Count']
-
-        fig = px.pie(
-            category_counts, 
-            names='Category', 
-            values='Count', 
-            hole=0.4,  # Робіть діаграму кільцевою (donut) — це виглядає сучасніше
-            color_discrete_sequence=px.colors.sequential.RdPu  # Підбираємо палітру під ватний/рожевий стиль сайту
-        )
-        fig.update_traces(textposition='inside', textinfo='percent+label')
-        fig.update_layout(
-            margin=dict(t=0, b=0, l=0, r=0),
-            height=350,
-            showlegend=False
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown("---")
-
         for index, row in filtered_df.iterrows():
             st.markdown(f"### {row['Name']} ({row['Brand']})")
             st.write(f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
