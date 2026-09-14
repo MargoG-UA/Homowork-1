@@ -3,6 +3,7 @@ import time
 import re
 import pandas as pd
 import streamlit as st
+import plotly.express as px  # Імпортуємо для красивих діаграм
 
 # Ініціалізація стану для збереження коментарів
 if 'comments' not in st.session_state:
@@ -22,19 +23,19 @@ def get_all_ingredients(df_subset):
     all_ingredients = set()
     for ingredients_str in df_subset['Ingredients'].dropna():
         raw_ingredients = [i.strip().lower() for i in ingredients_str.split(',')]
-        
+
         for i in raw_ingredients:
             if 'name?' in i or not i:
                 continue
-            
+
             i = re.sub(r'\(.*?\)', '', i)
             i = re.sub(r'[^a-z\s-]', '', i)
             i = i.strip(' -')
-            
+
             if i:
                 i = re.sub(r'\s+', ' ', i)
                 all_ingredients.add(i)
-                
+
     return sorted(list(all_ingredients))
 
 
@@ -126,14 +127,12 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
 st.sidebar.header("Filters")
 
-# 1. Вибір продукту (розміщуємо першим, щоб знати, що фільтрувати)
 product_types = sorted(list(df['Label'].unique()))
 selected_products = st.sidebar.multiselect(
     "Which type of product do you want?",
     options=product_types
 )
 
-# Динамічно формуємо список інгредієнтів залежно від обраних продуктів
 if selected_products:
     ingredients_source_df = df[df['Label'].isin(selected_products)]
 else:
@@ -141,27 +140,23 @@ else:
 
 all_unique_ingredients = get_all_ingredients(ingredients_source_df)
 
-# 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
     "Skin type:", 
     options=skin_types
 )
 
-# 3. Вибір бренду
 all_brands = sorted(df['Brand'].dropna().unique())
 selected_brands = st.sidebar.multiselect(
     "Brands:",
     options=all_brands
 )
 
-# 4. Вибір алергій (тепер підтягує інгредієнти тільки з обраних продуктів)
 selected_allergies = st.sidebar.multiselect(
     "Avoided ingredients:",
     options=all_unique_ingredients
 )
 
-# 5. Динамічний діапазон ціни
 if selected_brands:
     price_df = df[df['Brand'].isin(selected_brands)]
 else:
@@ -180,7 +175,6 @@ selected_price_range = st.sidebar.slider(
     value=(min_price, max_price)
 )
 
-# 6. Сортування
 sort_option = st.sidebar.radio(
     "Sort by:",
     ("relevance", "price increase", "price decrease")
@@ -192,7 +186,7 @@ search_clicked = st.sidebar.button("Search", use_container_width=True)
 sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
 
 
-# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ) ---
+# --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ ТА ДІАГРАМА) ---
 if search_clicked or sort_category_clicked:
 
     with st.spinner('Choosing the best for you...'):
@@ -230,6 +224,28 @@ if search_clicked or sort_category_clicked:
 
     if not filtered_df.empty:
         st.success(f"Products found: {len(filtered_df)}")
+        
+        # --- ДОДАЄМО КРУГОВУ ДІАГРАМУ (DONUT CHART) ЗА КАТЕГОРІЯМИ ---
+        st.markdown("### 📊 Product Distribution by Category")
+        category_counts = filtered_df['Label'].value_counts().reset_index()
+        category_counts.columns = ['Category', 'Count']
+
+        fig = px.pie(
+            category_counts, 
+            names='Category', 
+            values='Count', 
+            hole=0.4,  # Робіть діаграму кільцевою (donut) — це виглядає сучасніше
+            color_discrete_sequence=px.colors.sequential.RdPu  # Підбираємо палітру під ватний/рожевий стиль сайту
+        )
+        fig.update_traces(textposition='inside', textinfo='percent+label')
+        fig.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            height=350,
+            showlegend=False
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("---")
+
         for index, row in filtered_df.iterrows():
             st.markdown(f"### {row['Name']} ({row['Brand']})")
             st.write(f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
