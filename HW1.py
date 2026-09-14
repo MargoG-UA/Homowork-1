@@ -189,19 +189,30 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 
 # --- ОСНОВНА ЧАСТИНА ---
 
-# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З АНІМАЦІЄЮ ТА ЗАТВІДНІМІСТЮ (ПІДСВІТКОЮ)
+# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З ПІДСВІТКОЮ ТА АНІМАЦІЄЮ
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
-# Визначаємо прозорість (opacity) для кожного сектору залежно від вибору у фільтрі
-opacities = []
-for cat in category_counts['Category']:
+# Базові кольори з палітри
+base_hex_colors = px.colors.sequential.RdPu
+if len(category_counts) > len(base_hex_colors):
+    base_hex_colors = base_hex_colors * ((len(category_counts) // len(base_hex_colors)) + 1)
+
+sector_colors = []
+for i, cat in enumerate(category_counts['Category']):
+    hex_color = base_hex_colors[i % len(base_hex_colors)]
+    h = hex_color.lstrip('#')
+    rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
+    
+    # Визначаємо прозорість залежно від обраних продуктів у фільтрі
     if not selected_products:
-        opacities.append(1.0)  # Якщо нічого не обрано — всі яскраві
+        alpha = 1.0
     elif cat in selected_products:
-        opacities.append(1.0)  # Обраний сектор яскравий
+        alpha = 1.0
     else:
-        opacities.append(0.25) # Необрані сектори стають тусклими
+        alpha = 0.25
+        
+    sector_colors.append(f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {alpha})')
 
 fig = go.Figure(data=[go.Pie(
     labels=category_counts['Category'],
@@ -210,18 +221,16 @@ fig = go.Figure(data=[go.Pie(
     textposition='inside',
     textinfo='percent+label',
     marker=dict(
-        colors=px.colors.sequential.RdPu[:len(category_counts)],
+        colors=sector_colors,
         line=dict(color='#ffffff', width=2)
-    ),
-    opacity=opacities
+    )
 )])
 
-# Плавна анімація зміни стану діаграми
 fig.update_layout(
     margin=dict(t=10, b=10, l=10, r=10),
     height=400,
     showlegend=True,
-    transition=dict(duration=500, easing='cubic-in-out') # Анімація переходу
+    transition=dict(duration=500, easing='cubic-in-out')
 )
 
 st.plotly_chart(fig, use_container_width=True)
