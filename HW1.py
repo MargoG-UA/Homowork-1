@@ -45,7 +45,7 @@ def get_all_ingredients(df_subset):
 df = load_data()
 
 
-# --- ЛОГІКА СПЛЕШ-СКРИЇНУ (ПЕРШІ 5 СЕКУНД) ---
+# --- ЛОГІКА СПЛЕШ-СКРИЇНУ (ПЕРШІ 2 СЕКУНДИ) ---
 if not st.session_state.splash_shown:
     st.markdown("<br><br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -58,7 +58,7 @@ if not st.session_state.splash_shown:
                 unsafe_allow_html=True
             )
     
-    time.sleep(5)
+    time.sleep(2)  # Змінено з 5 на 2 секунди
     st.session_state.splash_shown = True
     st.rerun()
 
