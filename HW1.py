@@ -46,7 +46,7 @@ st.title("Your personal assistant to make a great product choice")
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
 <style>
-/* 1. Плаваюча кнопка для коментарів (Тепер колір #950e4e) */
+/* 1. Плаваюча кнопка для коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
@@ -77,6 +77,7 @@ custom_css = """
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] label,
 [data-testid="stSidebar"] label p,
 [data-testid="stSidebar"] .stRadio p {
     color: white !important;
@@ -109,19 +110,29 @@ custom_css = """
     background-color: white !important;
 }
 
-/* 5. Залишаємо темний текст всередині полів вибору */
+/* 5. Темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
 }
 
-/* 6. Бордовий колір (#950e4e) для тегів вибору та активних радіокнопок */
-span[data-baseweb="tag"] {
+/* 6. ЖОРСТКА ЗМІНА КОЛЬОРУ ТЕГІВ (#950e4e) */
+div[data-baseweb="select"] span[data-baseweb="tag"] {
     background-color: #950e4e !important;
+    color: white !important;
 }
 
-[data-testid="stSidebar"] .stRadio [role="radio"][aria-checked="true"] > div:first-child {
+/* Робимо хрестик на тегах білим */
+div[data-baseweb="select"] span[data-baseweb="tag"] svg {
+    fill: white !important;
+}
+
+/* 7. ЖОРСТКА ЗМІНА КОЛЬОРУ АКТИВНОЇ РАДІОКНОПКИ (#950e4e) */
+div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div {
     background-color: #950e4e !important;
     border-color: #950e4e !important;
+}
+div[data-testid="stRadio"] div[role="radio"][aria-checked="true"] > div > div {
+    background-color: #950e4e !important;
 }
 </style>
 <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
@@ -132,14 +143,14 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
 st.sidebar.header("Filters")
 
-# 1. Вибір продукту (мульти-вибір)
+# 1. Вибір продукту
 product_types = sorted(list(df['Label'].unique()))
 selected_products = st.sidebar.multiselect(
     "Which type of product do you want?",
     options=product_types
 )
 
-# 2. Тип шкіри (мульти-вибір)
+# 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
     "Оберіть ваш тип шкіри:", 
