@@ -4,6 +4,7 @@ import re
 import pandas as pd
 import streamlit as st
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Ініціалізація стану для збереження коментарів
 if 'comments' not in st.session_state:
@@ -188,26 +189,41 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 
 # --- ОСНОВНА ЧАСТИНА ---
 
-# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Без заголовка над нею, але з написами всередині)
+# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З АНІМАЦІЄЮ ТА ЗАТВІДНІМІСТЮ (ПІДСВІТКОЮ)
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
-fig = px.pie(
-    category_counts, 
-    names='Category', 
-    values='Count', 
-    hole=0.4, 
-    color_discrete_sequence=px.colors.sequential.RdPu
-)
+# Визначаємо прозорість (opacity) для кожного сектору залежно від вибору у фільтрі
+opacities = []
+for cat in category_counts['Category']:
+    if not selected_products:
+        opacities.append(1.0)  # Якщо нічого не обрано — всі яскраві
+    elif cat in selected_products:
+        opacities.append(1.0)  # Обраний сектор яскравий
+    else:
+        opacities.append(0.25) # Необрані сектори стають тусклими
 
-# Повертаємо назви категорій та відсотки всередину секторів
-fig.update_traces(textposition='inside', textinfo='percent+label')
+fig = go.Figure(data=[go.Pie(
+    labels=category_counts['Category'],
+    values=category_counts['Count'],
+    hole=0.4,
+    textposition='inside',
+    textinfo='percent+label',
+    marker=dict(
+        colors=px.colors.sequential.RdPu[:len(category_counts)],
+        line=dict(color='#ffffff', width=2)
+    ),
+    opacity=opacities
+)])
 
+# Плавна анімація зміни стану діаграми
 fig.update_layout(
     margin=dict(t=10, b=10, l=10, r=10),
     height=400,
-    showlegend=True
+    showlegend=True,
+    transition=dict(duration=500, easing='cubic-in-out') # Анімація переходу
 )
+
 st.plotly_chart(fig, use_container_width=True)
 st.markdown("---")
 
