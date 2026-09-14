@@ -43,9 +43,10 @@ all_unique_ingredients = get_all_ingredients(df)
 
 st.title("Your personal assistant to make a great product choice")
 
-# --- ДОДАВАННЯ ПЛАВАЮЧОЇ КНОПКИ (HTML/CSS) ---
-floating_button_css = """
+# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
+custom_css = """
 <style>
+/* 1. Плаваюча кнопка для коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
@@ -66,10 +67,37 @@ floating_button_css = """
 .floating-btn:hover {
     background-color: #FF6666;
 }
+
+/* 2. Зміна фону бокової панелі */
+[data-testid="stSidebar"] > div:first-child {
+    background-color: #fc6794 !important;
+}
+
+/* 3. Білий текст для заголовків, міток (labels), радіокнопок та тексту повзунка в боковій панелі */
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] label p,
+[data-testid="stSidebar"] .stRadio p,
+[data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] div,
+[data-testid="stSidebar"] .stSlider div[role="slider"] div {
+    color: white !important;
+}
+
+/* 4. Колір самої смужки повзунка (треку) на білий */
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div:nth-child(2),
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] div:nth-child(3) {
+    background-color: white !important;
+}
+
+/* 5. Залишаємо темний текст всередині полів вибору (щоб його було добре видно на білому фоні поля) */
+[data-testid="stSidebar"] [data-baseweb="select"] span {
+    color: #31333F !important;
+}
 </style>
 <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
 """
-st.markdown(floating_button_css, unsafe_allow_html=True)
+st.markdown(custom_css, unsafe_allow_html=True)
 
 
 # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
