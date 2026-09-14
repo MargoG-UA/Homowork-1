@@ -41,41 +41,54 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
+# Перевіряємо, чи увімкнена темна тема
+is_dark_mode = st.session_state.get("dark_mode", False)
+
 # --- ШАПКА: ЗАГОЛОВОК ТА ВИМИКАЧ ТЕМИ ---
 col1, col2 = st.columns([4, 1])
 
 with col1:
+    # Динамічний колір заголовка: білий для темної теми, бордовий для світлої
+    title_color = "white" if is_dark_mode else "#950e4e"
     st.markdown(
-        "<h1 style='color: #950e4e; margin-top: -20px;'>Your personal assistant to make a great product choice</h1>", 
+        f"<h1 style='color: {title_color}; margin-top: -20px;'>Your personal assistant to make a great product choice</h1>", 
         unsafe_allow_html=True
     )
 
 with col2:
     # Динамічна зміна іконки: якщо темна тема (True) - місяць, якщо світла (False) - сонце
-    theme_icon = "🌙" if st.session_state.get("dark_mode", False) else "☀️"
+    theme_icon = "🌙" if is_dark_mode else "☀️"
     st.toggle(theme_icon, key="dark_mode")
 
 
 # --- ДИНАМІЧНА ТЕМНА ТЕМА ---
-if st.session_state.get("dark_mode", False):
+if is_dark_mode:
     dark_mode_css = """
     <style>
-    /* Перефарбовуємо фон основної сторінки та шапки */
+    /* Перефарбовуємо фон основної сторінки та шапки у бордовий */
     [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        background-color: #0e1117 !important;
+        background-color: #950e4e !important;
     }
-    /* Перефарбовуємо звичайний текст, заголовки та текст у повідомленнях у світлий */
+    /* Перефарбовуємо звичайний текст, заголовки та текст у повідомленнях у білий */
     [data-testid="stAppViewContainer"] p,
     [data-testid="stAppViewContainer"] h2,
     [data-testid="stAppViewContainer"] h3,
     [data-testid="stAppViewContainer"] h4,
     [data-testid="stMarkdownContainer"] p {
-        color: #FAFAFA !important;
+        color: white !important;
     }
-    /* Текст у полях вводу коментарів залишаємо темним для контрасту */
+    /* Робимо поля вводу темними зі світлим текстом */
     .stTextArea textarea, .stTextInput input {
-        color: #FAFAFA !important;
+        color: white !important;
         background-color: #262730 !important;
+    }
+    /* Перефарбовуємо плаваючу кнопку в білий, щоб її було видно на бордовому фоні */
+    .floating-btn {
+        background-color: white !important;
+        color: #950e4e !important;
+    }
+    .floating-btn:hover {
+        background-color: #f0f0f0 !important;
     }
     </style>
     """
@@ -85,7 +98,7 @@ if st.session_state.get("dark_mode", False):
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ БОКОВОЇ ПАНЕЛІ ТА КНОПКИ (CSS) ---
 custom_css = """
 <style>
-/* Плаваюча кнопка для коментарів */
+/* Плаваюча кнопка для коментарів (базовий стиль для світлої теми) */
 .floating-btn {
     position: fixed;
     bottom: 30px;
