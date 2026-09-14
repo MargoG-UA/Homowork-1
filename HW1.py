@@ -41,72 +41,16 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
-# Перевіряємо, чи увімкнена темна тема
-is_dark_mode = st.session_state.get("dark_mode", False)
+# --- КАСТОМНИЙ ЗАГОЛОВОК ---
+st.markdown(
+    "<h1 style='color: #950e4e;'>Your personal assistant to make a great product choice</h1>", 
+    unsafe_allow_html=True
+)
 
-# --- ШАПКА: ЗАГОЛОВОК ТА ВИМИКАЧ ТЕМИ ---
-col1, col2 = st.columns([4, 1])
-
-with col1:
-    # Динамічний колір заголовка: білий для темної теми, бордовий для світлої
-    title_color = "white" if is_dark_mode else "#950e4e"
-    st.markdown(
-        f"<h1 style='color: {title_color}; margin-top: -20px;'>Your personal assistant to make a great product choice</h1>", 
-        unsafe_allow_html=True
-    )
-
-with col2:
-    # Динамічна зміна іконки: якщо темна тема (True) - місяць, якщо світла (False) - сонце
-    theme_icon = "🌙" if is_dark_mode else "☀️"
-    st.toggle(theme_icon, key="dark_mode")
-
-
-# --- ДИНАМІЧНА ТЕМНА ТЕМА ---
-if is_dark_mode:
-    dark_mode_css = """
-    <style>
-    /* Перефарбовуємо фон основної сторінки та шапки у бордовий */
-    [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
-        background-color: #950e4e !important;
-    }
-    /* Перефарбовуємо звичайний текст, заголовки та текст у повідомленнях у білий */
-    [data-testid="stAppViewContainer"] p,
-    [data-testid="stAppViewContainer"] h2,
-    [data-testid="stAppViewContainer"] h3,
-    [data-testid="stAppViewContainer"] h4,
-    [data-testid="stMarkdownContainer"] p {
-        color: white !important;
-    }
-    /* Робимо поля вводу кольором #fc6794 із чорним текстом */
-    .stTextArea textarea, .stTextInput input, div[data-baseweb="input"] > div {
-        background-color: #fc6794 !important;
-        color: black !important;
-    }
-    /* Текст усередині полів вводу також робимо чорним */
-    .stTextArea textarea, .stTextInput input {
-        color: black !important;
-    }
-    /* Перефарбовуємо плаваючу кнопку в білий */
-    .floating-btn {
-        background-color: white !important;
-        color: #950e4e !important;
-    }
-    .floating-btn:hover {
-        background-color: #f0f0f0 !important;
-    }
-    /* Перефарбовуємо активний вимикач (toggle) у колір #fc6794 */
-    div[data-baseweb="checkbox"] input:checked + div {
-        background-color: #fc6794 !important;
-    }
-    </style>
-    """
-    st.markdown(dark_mode_css, unsafe_allow_html=True)
-
-
-# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ БОКОВОЇ ПАНЕЛІ ТА КНОПКИ (CSS) ---
+# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
 custom_css = """
 <style>
-/* Плаваюча кнопка для коментарів (базовий стиль для світлої теми) */
+/* Плаваюча кнопка для коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
