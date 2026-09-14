@@ -77,10 +77,14 @@ if is_dark_mode:
     [data-testid="stMarkdownContainer"] p {
         color: white !important;
     }
-    /* Робимо поля вводу темними зі світлим текстом */
+    /* Робимо поля вводу кольором #fc6794 із чорним текстом */
+    .stTextArea textarea, .stTextInput input, div[data-baseweb="input"] > div {
+        background-color: #fc6794 !important;
+        color: black !important;
+    }
+    /* Текст усередині полів вводу також робимо чорним */
     .stTextArea textarea, .stTextInput input {
-        color: white !important;
-        background-color: #262730 !important;
+        color: black !important;
     }
     /* Перефарбовуємо плаваючу кнопку в білий */
     .floating-btn {
