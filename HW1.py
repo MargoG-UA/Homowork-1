@@ -21,7 +21,6 @@ def load_data():
 def get_all_ingredients(df):
     all_ingredients = set()
     for ingredients_str in df['Ingredients'].dropna():
-        # Розбиваємо рядок на окремі інгредієнти
         raw_ingredients = [i.strip().lower() for i in ingredients_str.split(',')]
         
         for i in raw_ingredients:
@@ -42,7 +41,17 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
-st.title("Your personal assistant to make a great product choice")
+# --- КАСТОМНИЙ ЗАГОЛОВОК ІЗ ШРИФТОМ BILLION DOLLARS ---
+# Зверніть увагу: щоб цей шрифт відображався у всіх користувачів, 
+# він має бути встановлений на їхньому пристрої.
+st.markdown(
+    """
+    <h1 style="font-family: 'Billion Dollars', sans-serif;">
+        Your personal assistant to make a great product choice
+    </h1>
+    """, 
+    unsafe_allow_html=True
+)
 
 # --- ДОДАВАННЯ ПЛАВАЮЧОЇ КНОПКИ (HTML/CSS) ---
 floating_button_css = """
@@ -86,7 +95,7 @@ selected_products = st.sidebar.multiselect(
 # 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
-    "Skin type:", 
+    "Оберіть ваш тип шкіри:", 
     options=skin_types
 )
 
@@ -130,7 +139,7 @@ sort_option = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 
-# Кнопки також розміщуємо в боковій панелі (одна під одною для краси)
+# Кнопки також розміщуємо в боковій панелі
 search_clicked = st.sidebar.button("Search", use_container_width=True)
 sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
 
@@ -138,7 +147,6 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 # --- ОСНОВНА ЧАСТИНА (РЕЗУЛЬТАТИ ПОШУКУ) ---
 if search_clicked or sort_category_clicked:
 
-    # Анімація завантаження під час пошуку
     with st.spinner('Choosing the best for you...'):
         time.sleep(0.6)
 
