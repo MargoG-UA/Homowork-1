@@ -58,7 +58,7 @@ if not st.session_state.splash_shown:
                 unsafe_allow_html=True
             )
     
-    time.sleep(2)
+    time.sleep(2)  # Змінено з 5 на 2 секунди
     st.session_state.splash_shown = True
     st.rerun()
 
@@ -93,18 +93,6 @@ custom_css = """
 }
 .floating-btn:hover {
     background-color: #7a0b3f !important;
-}
-
-/* Зміна фону блоків коментарів (st.info) на ніжно-рожевий з легким світінням */
-[data-testid="stNotification"] {
-    background-color: #ffe6f0 !important;
-    border: 1px solid #ffb3d1 !important;
-    color: #880e4f !important;
-    box-shadow: 0 0 10px rgba(252, 103, 148, 0.2);
-}
-
-[data-testid="stNotification"] p {
-    color: #880e4f !important;
 }
 
 /* Зміна фону бокової панелі */
