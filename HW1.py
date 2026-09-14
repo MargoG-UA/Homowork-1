@@ -4,7 +4,6 @@ import re
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 
 # Ініціалізація стану для збереження коментарів
 if 'comments' not in st.session_state:
@@ -189,37 +188,52 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 
 # --- ОСНОВНА ЧАСТИНА ---
 
-# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З ПІДСВІТКОЮ ТА АНІМАЦІЄЮ
+# 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З ФІКСОВАНИМИ КОЛЬОРАМИ ТА ПІДСВІТКОЮ
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
-# Використовуємо стабільну палітру кольорів Plotly
-palette = ['#950e4e', '#fc6794', '#d81b60', '#ad1457', '#880e4f', '#f06292', '#ec407a']
-sector_colors = []
+# Жорстко закріплюємо кольори за кожною категорією
+fixed_colors = {
+    'Moisturizer': '#880e4f',
+    'Cleanser': '#ad1457',
+    'Face Mask': '#d81b60',
+    'Treatment': '#e91e63',
+    'Eye cream': '#ec407a',
+    'Sun protect': '#f06292'
+}
 
-for i, cat in enumerate(category_counts['Category']):
-    base_color = palette[i % len(palette)]
+# Додаємо стовпець прозорості/кольору залежно від обраних продуктів у фільтрі
+def get_sector_color(row):
+    cat = row['Category']
+    base_color = fixed_colors.get(cat, '#950e4e')
     
-    # Визначаємо прозорість: якщо нічого не обрано або категорія вибрана — яскрава, інакше — тускла
     if not selected_products or cat in selected_products:
-        sector_colors.append(base_color)
+        return base_color
     else:
-        # Робимо неактивні сектори світлішими/напівпрозорими через конвертацію в rgba
+        # Робимо тусклим (зменшуємо alpha)
         h = base_color.lstrip('#')
         rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
-        sector_colors.append(f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)')
+        return f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
 
-fig = go.Figure(data=[go.Pie(
-    labels=category_counts['Category'],
-    values=category_counts['Count'],
+category_counts['Color'] = category_counts.apply(get_sector_color, axis=1)
+
+fig = px.pie(
+    category_counts, 
+    names='Category', 
+    values='Count', 
     hole=0.4,
-    textposition='inside',
+    color='Category',
+    color_discrete_map=fixed_colors
+)
+
+fig.update_traces(
+    textposition='inside', 
     textinfo='percent+label',
     marker=dict(
-        colors=sector_colors,
+        colors=category_counts['Color'],
         line=dict(color='#ffffff', width=2)
     )
-)])
+)
 
 fig.update_layout(
     margin=dict(t=10, b=10, l=10, r=10),
