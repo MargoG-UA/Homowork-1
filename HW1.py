@@ -193,26 +193,21 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
-# Базові кольори з палітри
-base_hex_colors = px.colors.sequential.RdPu
-if len(category_counts) > len(base_hex_colors):
-    base_hex_colors = base_hex_colors * ((len(category_counts) // len(base_hex_colors)) + 1)
-
+# Використовуємо стабільну палітру кольорів Plotly
+palette = ['#950e4e', '#fc6794', '#d81b60', '#ad1457', '#880e4f', '#f06292', '#ec407a']
 sector_colors = []
+
 for i, cat in enumerate(category_counts['Category']):
-    hex_color = base_hex_colors[i % len(base_hex_colors)]
-    h = hex_color.lstrip('#')
-    rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
+    base_color = palette[i % len(palette)]
     
-    # Визначаємо прозорість залежно від обраних продуктів у фільтрі
-    if not selected_products:
-        alpha = 1.0
-    elif cat in selected_products:
-        alpha = 1.0
+    # Визначаємо прозорість: якщо нічого не обрано або категорія вибрана — яскрава, інакше — тускла
+    if not selected_products or cat in selected_products:
+        sector_colors.append(base_color)
     else:
-        alpha = 0.25
-        
-    sector_colors.append(f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, {alpha})')
+        # Робимо неактивні сектори світлішими/напівпрозорими через конвертацію в rgba
+        h = base_color.lstrip('#')
+        rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
+        sector_colors.append(f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)')
 
 fig = go.Figure(data=[go.Pie(
     labels=category_counts['Category'],
