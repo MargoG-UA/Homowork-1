@@ -44,6 +44,35 @@ all_unique_ingredients = get_all_ingredients(df)
 
 st.title("Your personal assistant to make a great product choice")
 
+# --- ДОДАВАННЯ ПЛАВАЮЧОЇ КНОПКИ (HTML/CSS) ---
+floating_button_css = """
+<style>
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #FF4B4B;
+    color: white !important;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    font-size: 30px;
+    line-height: 60px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+.floating-btn:hover {
+    background-color: #FF6666;
+}
+</style>
+<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
+"""
+st.markdown(floating_button_css, unsafe_allow_html=True)
+
+
 # --- БОКОВА ПАНЕЛЬ (ЛІВИЙ КРАЙ) ---
 st.sidebar.header("Filters")
 
@@ -160,6 +189,10 @@ if search_clicked or sort_category_clicked:
         st.error("Unfortunately, we don't have any data about this product. Please change the parameters.")
 
 st.markdown("<br><br>", unsafe_allow_html=True)
+
+# Створюємо "якір" (anchor), на який посилається плаваюча кнопка
+st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
+
 st.subheader("Comments")
 st.write("Haven't found your favourite product? Have an idea for development? Text us!")
 
