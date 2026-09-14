@@ -188,8 +188,7 @@ sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_wi
 
 # --- ОСНОВНА ЧАСТИНА ---
 
-# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Завжди відображається на головному екрані)
-st.markdown("### 📊 Overview: Products Distribution by Category")
+# 1. ЗАГАЛЬНА КРУГОВА ДІАГРАМА (Без заголовка та без написів всередині)
 category_counts = df['Label'].value_counts().reset_index()
 category_counts.columns = ['Category', 'Count']
 
@@ -197,10 +196,12 @@ fig = px.pie(
     category_counts, 
     names='Category', 
     values='Count', 
-    hole=0.4,  # Кільцева діаграма
+    hole=0.4, 
     color_discrete_sequence=px.colors.sequential.RdPu
 )
-fig.update_traces(textposition='inside', textinfo='percent+label')
+
+fig.update_traces(textinfo='none')
+
 fig.update_layout(
     margin=dict(t=10, b=10, l=10, r=10),
     height=400,
