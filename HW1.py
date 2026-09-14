@@ -41,15 +41,23 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
-# --- БОКОВА ПАНЕЛЬ: ВИБІР ТЕМИ ---
-# Розміщуємо його на самому початку, щоб він керував стилями
-st.sidebar.header("Appearance")
-theme_choice = st.sidebar.radio("Theme:", ("Light", "Dark"), horizontal=True)
-st.sidebar.markdown("---")
+# --- ШАПКА: ЗАГОЛОВОК ТА ВИМИКАЧ ТЕМИ ---
+# Створюємо дві колонки: широку для заголовка (80%) і вузьку для вимикача (20%)
+col1, col2 = st.columns([4, 1])
+
+with col1:
+    st.markdown(
+        "<h1 style='color: #950e4e; margin-top: -20px;'>Your personal assistant to make a great product choice</h1>", 
+        unsafe_allow_html=True
+    )
+
+with col2:
+    # Вимикач теми (Toggle)
+    dark_mode = st.toggle("🌙 Dark Theme")
 
 
 # --- ДИНАМІЧНА ТЕМНА ТЕМА ---
-if theme_choice == "Dark":
+if dark_mode:
     dark_mode_css = """
     <style>
     /* Перефарбовуємо фон основної сторінки та шапки */
@@ -73,12 +81,6 @@ if theme_choice == "Dark":
     """
     st.markdown(dark_mode_css, unsafe_allow_html=True)
 
-
-# --- КАСТОМНИЙ ЗАГОЛОВОК ---
-st.markdown(
-    "<h1 style='color: #950e4e;'>Your personal assistant to make a great product choice</h1>", 
-    unsafe_allow_html=True
-)
 
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ БОКОВОЇ ПАНЕЛІ ТА КНОПКИ (CSS) ---
 custom_css = """
