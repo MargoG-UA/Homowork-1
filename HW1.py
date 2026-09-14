@@ -82,13 +82,17 @@ if is_dark_mode:
         color: white !important;
         background-color: #262730 !important;
     }
-    /* Перефарбовуємо плаваючу кнопку в білий, щоб її було видно на бордовому фоні */
+    /* Перефарбовуємо плаваючу кнопку в білий */
     .floating-btn {
         background-color: white !important;
         color: #950e4e !important;
     }
     .floating-btn:hover {
         background-color: #f0f0f0 !important;
+    }
+    /* Перефарбовуємо активний вимикач (toggle) у колір #fc6794 */
+    div[data-baseweb="checkbox"] input:checked + div {
+        background-color: #fc6794 !important;
     }
     </style>
     """
