@@ -86,7 +86,7 @@ selected_products = st.sidebar.multiselect(
 # 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
 selected_skins = st.sidebar.multiselect(
-    "Оберіть ваш тип шкіри:", 
+    "Skin type:", 
     options=skin_types
 )
 
