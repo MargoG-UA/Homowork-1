@@ -41,13 +41,46 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
+# --- БОКОВА ПАНЕЛЬ: ВИБІР ТЕМИ ---
+# Розміщуємо його на самому початку, щоб він керував стилями
+st.sidebar.header("Appearance")
+theme_choice = st.sidebar.radio("Theme:", ("Light", "Dark"), horizontal=True)
+st.sidebar.markdown("---")
+
+
+# --- ДИНАМІЧНА ТЕМНА ТЕМА ---
+if theme_choice == "Dark":
+    dark_mode_css = """
+    <style>
+    /* Перефарбовуємо фон основної сторінки та шапки */
+    [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+        background-color: #0e1117 !important;
+    }
+    /* Перефарбовуємо звичайний текст, заголовки та текст у повідомленнях у світлий */
+    [data-testid="stAppViewContainer"] p,
+    [data-testid="stAppViewContainer"] h2,
+    [data-testid="stAppViewContainer"] h3,
+    [data-testid="stAppViewContainer"] h4,
+    [data-testid="stMarkdownContainer"] p {
+        color: #FAFAFA !important;
+    }
+    /* Текст у полях вводу коментарів залишаємо темним для контрасту */
+    .stTextArea textarea, .stTextInput input {
+        color: #FAFAFA !important;
+        background-color: #262730 !important;
+    }
+    </style>
+    """
+    st.markdown(dark_mode_css, unsafe_allow_html=True)
+
+
 # --- КАСТОМНИЙ ЗАГОЛОВОК ---
 st.markdown(
     "<h1 style='color: #950e4e;'>Your personal assistant to make a great product choice</h1>", 
     unsafe_allow_html=True
 )
 
-# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
+# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ БОКОВОЇ ПАНЕЛІ ТА КНОПКИ (CSS) ---
 custom_css = """
 <style>
 /* Плаваюча кнопка для коментарів */
@@ -77,7 +110,7 @@ custom_css = """
     background-color: #fc6794 !important;
 }
 
-/* Білий текст для заголовків, міток (labels), радіокнопок */
+/* Білий текст для заголовків, міток (labels), радіокнопок у боковій панелі */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
