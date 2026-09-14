@@ -210,7 +210,7 @@ def get_sector_color(row):
     if not selected_products or cat in selected_products:
         return base_color
     else:
-        # Робимо тусклим (зменшуємо alpha)
+        # Робимо тусклим неактивні сектори
         h = base_color.lstrip('#')
         rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
         return f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
@@ -229,6 +229,7 @@ fig = px.pie(
 fig.update_traces(
     textposition='inside', 
     textinfo='percent+label',
+    textfont=dict(color='white'),  # Примусово робимо текст білим для всіх секторів
     marker=dict(
         colors=category_counts['Color'],
         line=dict(color='#ffffff', width=2)
