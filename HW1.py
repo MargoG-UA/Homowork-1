@@ -1,7 +1,6 @@
 import os
 import time
 import re
-import base64
 import pandas as pd
 import streamlit as st
 
@@ -42,76 +41,35 @@ def get_all_ingredients(df):
 df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
+st.title("Your personal assistant to make a great product choice")
 
-# --- ФУНКЦІЯ ДЛЯ ПІДКЛЮЧЕННЯ КАСТОМНОГО ШРИФТУ ЧЕРЕЗ BASE64 ---
-def load_custom_font(font_path):
-    if os.path.exists(font_path):
-        with open(font_path, "rb") as f:
-            font_bytes = f.read()
-        encoded = base64.b64encode(font_bytes).decode()
-        return f"""
-        <style>
-        @font-face {{
-            font-family: 'Billion Dollars';
-            src: url(data:font/ttf;charset=utf-8;base64,{encoded}) format('truetype');
-        }}
-        .custom-title {{
-            font-family: 'Billion Dollars', sans-serif;
-            font-size: 42px;
-            color: #262730;
-            line-height: 1.2;
-            margin-bottom: 20px;
-        }}
-        .floating-btn {{
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #FF4B4B;
-            color: white !important;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            text-align: center;
-            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-            font-size: 30px;
-            line-height: 60px;
-            z-index: 1000;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-        }}
-        .floating-btn:hover {{
-            background-color: #FF6666;
-        }}
-        </style>
-        """
-    else:
-        # Запасний варіант, якщо файл шрифту ще не додали в папку
-        return """
-        <style>
-        .custom-title {
-            font-family: sans-serif;
-            font-size: 42px;
-            font-weight: bold;
-        }
-        .floating-btn {
-            position: fixed; bottom: 30px; right: 30px;
-            background-color: #FF4B4B; color: white !important;
-            border-radius: 50%; width: 60px; height: 60px;
-            text-align: center; box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-            font-size: 30px; line-height: 60px; z-index: 1000; text-decoration: none;
-        }
-        </style>
-        """
-
-# Завантажуємо стилі та шрифт (вкажіть точну назву файлу вашого шрифту, наприклад 'BillionDollars.ttf')
-font_css = load_custom_font("BillionDollars.ttf")
-st.markdown(font_css, unsafe_allow_html=True)
-
-# Виведення заголовка кастомним шрифтом
-st.markdown('<div class="custom-title">Your personal assistant to make a great product choice</div>', unsafe_allow_html=True)
-
-# Плаваюча кнопка для швидкого переходу до коментарів
-st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
+# --- ДОДАВАННЯ ПЛАВАЮЧОЇ КНОПКИ (HTML/CSS) ---
+floating_button_css = """
+<style>
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #FF4B4B;
+    color: white !important;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    font-size: 30px;
+    line-height: 60px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+.floating-btn:hover {
+    background-color: #FF6666;
+}
+</style>
+<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
+"""
+st.markdown(floating_button_css, unsafe_allow_html=True)
 
 
 # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
