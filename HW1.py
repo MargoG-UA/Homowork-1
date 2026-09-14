@@ -18,9 +18,9 @@ def load_data():
 
 
 @st.cache_data
-def get_all_ingredients(df):
+def get_all_ingredients(df_subset):
     all_ingredients = set()
-    for ingredients_str in df['Ingredients'].dropna():
+    for ingredients_str in df_subset['Ingredients'].dropna():
         raw_ingredients = [i.strip().lower() for i in ingredients_str.split(',')]
         
         for i in raw_ingredients:
@@ -39,7 +39,6 @@ def get_all_ingredients(df):
 
 
 df = load_data()
-all_unique_ingredients = get_all_ingredients(df)
 
 # --- КАСТОМНИЙ ЗАГОЛОВОК ---
 st.markdown(
@@ -127,12 +126,20 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
 st.sidebar.header("Filters")
 
-# 1. Вибір продукту
+# 1. Вибір продукту (розміщуємо першим, щоб знати, що фільтрувати)
 product_types = sorted(list(df['Label'].unique()))
 selected_products = st.sidebar.multiselect(
     "Which type of product do you want?",
     options=product_types
 )
+
+# Динамічно формуємо список інгредієнтів залежно від обраних продуктів
+if selected_products:
+    ingredients_source_df = df[df['Label'].isin(selected_products)]
+else:
+    ingredients_source_df = df
+
+all_unique_ingredients = get_all_ingredients(ingredients_source_df)
 
 # 2. Тип шкіри
 skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
@@ -148,7 +155,7 @@ selected_brands = st.sidebar.multiselect(
     options=all_brands
 )
 
-# 4. Вибір алергій
+# 4. Вибір алергій (тепер підтягує інгредієнти тільки з обраних продуктів)
 selected_allergies = st.sidebar.multiselect(
     "Avoided products:",
     options=all_unique_ingredients
