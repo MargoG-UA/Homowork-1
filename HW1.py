@@ -42,7 +42,6 @@ df = load_data()
 all_unique_ingredients = get_all_ingredients(df)
 
 # --- ШАПКА: ЗАГОЛОВОК ТА ВИМИКАЧ ТЕМИ ---
-# Створюємо дві колонки: широку для заголовка (80%) і вузьку для вимикача (20%)
 col1, col2 = st.columns([4, 1])
 
 with col1:
@@ -52,12 +51,13 @@ with col1:
     )
 
 with col2:
-    # Вимикач теми (Toggle)
-    dark_mode = st.toggle("🌙 Dark Theme")
+    # Динамічна зміна іконки: якщо темна тема (True) - місяць, якщо світла (False) - сонце
+    theme_icon = "🌙" if st.session_state.get("dark_mode", False) else "☀️"
+    st.toggle(theme_icon, key="dark_mode")
 
 
 # --- ДИНАМІЧНА ТЕМНА ТЕМА ---
-if dark_mode:
+if st.session_state.get("dark_mode", False):
     dark_mode_css = """
     <style>
     /* Перефарбовуємо фон основної сторінки та шапки */
