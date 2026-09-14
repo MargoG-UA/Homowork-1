@@ -1,13 +1,32 @@
 import os
 import time
 import re
+import json
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 
-# --- ІНІЦІАЛІЗАЦІЯ СТАНУ ---
+# --- ШЛЯХ ДО ФАЙЛУ З КОМЕНТАРЯМИ ---
+COMMENTS_FILE = "comments.json"
+
+# Функція для завантаження коментарів із файлу
+def load_comments():
+    if os.path.exists(COMMENTS_FILE):
+        try:
+            with open(COMMENTS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            return []
+    return []
+
+# Функція для збереження коментарів у файл
+def save_comments(comments_list):
+    with open(COMMENTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(comments_list, f, ensure_ascii=False, indent=4)
+
+# Ініціалізація стану коментарів із файлу
 if 'comments' not in st.session_state:
-    st.session_state.comments = []
+    st.session_state.comments = load_comments()
 
 if 'splash_shown' not in st.session_state:
     st.session_state.splash_shown = False
@@ -58,7 +77,7 @@ if not st.session_state.splash_shown:
                 unsafe_allow_html=True
             )
     
-    time.sleep(2)  # Змінено з 5 на 2 секунди
+    time.sleep(2)
     st.session_state.splash_shown = True
     st.rerun()
 
@@ -93,6 +112,18 @@ custom_css = """
 }
 .floating-btn:hover {
     background-color: #7a0b3f !important;
+}
+
+/* Зміна фону блоків коментарів (st.info) на ніжно-рожевий з легким світінням */
+[data-testid="stNotification"] {
+    background-color: #ffe6f0 !important;
+    border: 1px solid #ffb3d1 !important;
+    color: #880e4f !important;
+    box-shadow: 0 0 10px rgba(252, 103, 148, 0.2);
+}
+
+[data-testid="stNotification"] p {
+    color: #880e4f !important;
 }
 
 /* Зміна фону бокової панелі */
@@ -326,7 +357,12 @@ with st.form("comment_form", clear_on_submit=True):
     if submit_button:
         if new_comment.strip():
             name_to_display = user_name.strip() if user_name.strip() else "Anonymous"
+            
+            # Додаємо новий коментар у список
             st.session_state.comments.append({"name": name_to_display, "text": new_comment})
+            
+            # Зберігаємо оновлений список у файл comments.json назавжди
+            save_comments(st.session_state.comments)
 
             st.balloons()
             st.success("The comment is successfully added!")
