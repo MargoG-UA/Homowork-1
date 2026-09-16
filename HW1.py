@@ -113,7 +113,7 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* УСІ кнопки на сайті тепер кольору #950e4e з білим стандартним текстом і шрифтом */
+/* УСІ кнопки на сайті кольору #950e4e з білим текстом */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -194,7 +194,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # РЕЖИМ 1: МАГАЗИН ТА РОЗРАХУНОК НАБОРУ
 # ==========================================
 if st.session_state.page == "shop":
-    st.markdown("<h1 style='color: #950e4e;'>🛒 Interactive Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: #950e4e;'>🛒 Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
     
     if st.button("⬅️ Back to Main Assistant", key="back_main_btn"):
         st.session_state.page = "main"
