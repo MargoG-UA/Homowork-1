@@ -211,17 +211,14 @@ if st.session_state.page == "shop":
     col_shop1, col_shop2 = st.columns([2, 1])
 
     with col_shop1:
-        # Обгортаємо блок вибору у світло-рожевий контейнер
         st.markdown('<div class="pink-shop-box">', unsafe_allow_html=True)
         st.subheader("Select Products by Category")
         
         categories = sorted(list(df['Label'].unique()))
         chosen_category = st.selectbox("Choose Category:", categories)
         
-        # Фільтруємо товари категорії
         cat_df = df[df['Label'] == chosen_category]
         
-        # Повзунок бюджету для цієї категорії
         min_p = int(cat_df['Price'].min())
         max_p = int(cat_df['Price'].max())
         if min_p == max_p:
@@ -235,37 +232,41 @@ if st.session_state.page == "shop":
             key="shop_budget_slider"
         )
         
-        # Фільтруємо товари за бюджетом
         filtered_cat_df = cat_df[(cat_df['Price'] >= budget_range[0]) & (cat_df['Price'] <= budget_range[1])]
         
         if filtered_cat_df.empty:
             st.warning("No products found in this price range. Please adjust your budget.")
         else:
             product_names = sorted(filtered_cat_df['Name'].unique())
-            selected_prod_name = st.selectbox("Choose Product:", product_names)
             
-            prod_row = filtered_cat_df[filtered_cat_df['Name'] == selected_prod_name].iloc[0]
+            # Додаємо можливість не обирати продукт у категорії
+            selected_prod_name = st.selectbox("Choose Product:", ["— None (Skip category) —"] + product_names)
             
-            st.write(f"🏷️ **Brand:** {prod_row['Brand']} | 💵 **Price:** ${prod_row['Price']} | ⭐ **Rate:** {prod_row.get('Rank', 'NO DATA')}")
-            
-            st.markdown("#### 🔄 Alternatives (Cheaper / More Expensive within budget)")
-            cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < prod_row['Price']].sort_values(by='Price', ascending=False).head(2)
-            expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > prod_row['Price']].sort_values(by='Price', ascending=True).head(2)
-            
-            alt_df = pd.concat([cheaper_alt, expensive_alt])
-            if not alt_df.empty:
-                alt_options = [f"{r['Name']} ({r['Brand']}) - ${r['Price']}" for _, r in alt_df.iterrows()]
-                chosen_alt = st.selectbox("Switch to alternative (optional):", ["Keep current"] + alt_options)
-                if chosen_alt != "Keep current":
-                    alt_name = chosen_alt.split(" (")[0]
-                    prod_row = filtered_cat_df[filtered_cat_df['Name'] == alt_name].iloc[0]
-            
-            if st.button("➕ Add to Cart", use_container_width=True):
-                st.session_state.cart[prod_row['Name']] = {
-                    'row': prod_row.to_dict(),
-                    'category': chosen_category
-                }
-                st.success(f"Added {prod_row['Name']} to your bundle!")
+            if selected_prod_name != "— None (Skip category) —":
+                prod_row = filtered_cat_df[filtered_cat_df['Name'] == selected_prod_name].iloc[0]
+                
+                st.write(f"🏷️ **Brand:** {prod_row['Brand']} | 💵 **Price:** ${prod_row['Price']} | ⭐ **Rate:** {prod_row.get('Rank', 'NO DATA')}")
+                
+                st.markdown("#### 🔄 Alternatives (Cheaper / More Expensive within budget)")
+                cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < prod_row['Price']].sort_values(by='Price', ascending=False).head(2)
+                expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > prod_row['Price']].sort_values(by='Price', ascending=True).head(2)
+                
+                alt_df = pd.concat([cheaper_alt, expensive_alt])
+                if not alt_df.empty:
+                    alt_options = [f"{r['Name']} ({r['Brand']}) - ${r['Price']}" for _, r in alt_df.iterrows()]
+                    chosen_alt = st.selectbox("Switch to alternative (optional):", ["Keep current"] + alt_options)
+                    if chosen_alt != "Keep current":
+                        alt_name = chosen_alt.split(" (")[0]
+                        prod_row = filtered_cat_df[filtered_cat_df['Name'] == alt_name].iloc[0]
+                
+                if st.button("➕ Add to Cart", use_container_width=True):
+                    st.session_state.cart[prod_row['Name']] = {
+                        'row': prod_row.to_dict(),
+                        'category': chosen_category
+                    }
+                    st.success(f"Added {prod_row['Name']} to your bundle!")
+            else:
+                st.info("You skipped this category.")
                 
         st.markdown('</div>', unsafe_allow_html=True)
 
