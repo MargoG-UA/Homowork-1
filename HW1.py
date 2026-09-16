@@ -127,17 +127,11 @@ div.stButton > button:hover {
     color: white !important;
 }
 
-/* Світло-рожеві кнопки для альтернатив */
-.pink-alt-wrapper button {
+/* Світло-рожеві кнопки для альтернатив (шукаємо за текстом всередині) */
+button[kind="secondary"] {
     background-color: #ffe6f0 !important;
     color: #950e4e !important;
     border: 1px solid #ffb3d1 !important;
-    border-radius: 8px !important;
-}
-
-.pink-alt-wrapper button:hover {
-    background-color: #ffcce6 !important;
-    color: #7a0b3f !important;
 }
 
 /* Світло-рожевий квадрат для вибору продуктів у магазині */
@@ -280,10 +274,8 @@ if st.session_state.page == "shop":
                             del st.session_state.cart[p_name]
                 
                 with col_item_btn:
-                    st.markdown('<div class="pink-alt-wrapper">', unsafe_allow_html=True)
                     if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
-                    st.markdown('</div>', unsafe_allow_html=True)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
                     st.info(f"✨ Alternatives for **{p_name}**:")
@@ -298,14 +290,12 @@ if st.session_state.page == "shop":
                             alt_name = alt_r['Name']
                             alt_brand = alt_r['Brand']
                             alt_price = alt_r['Price']
-                            st.markdown('<div class="pink-alt-wrapper">', unsafe_allow_html=True)
                             if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
                                 if p_name in st.session_state.cart:
                                     del st.session_state.cart[p_name]
                                 st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category}
                                 st.success(f"Switched to {alt_name}!")
                                 st.rerun()
-                            st.markdown('</div>', unsafe_allow_html=True)
 
             if len(display_df) > 10 and selected_specific_product == "— View all products in category —":
                 st.caption(f"Showing first 10 items out of {len(display_df)}. Select a specific product above to filter directly.")
