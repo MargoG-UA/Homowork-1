@@ -113,7 +113,7 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* Стандартні головні кнопки сайту — темно-малинові */
+/* Стандартні кнопки сайту — темно-малинові */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -124,28 +124,6 @@ div.stButton > button {
 
 div.stButton > button:hover {
     background-color: #7a0b3f !important;
-    color: white !important;
-}
-
-/* Точний селектор для кнопок альтернатив кольору #fc6794 за ключем */
-div.stButton > button[kind="secondary"], 
-div.stButton > button[data-baseweb="button"] {
-    background-color: #950e4e !important;
-}
-
-/* Перефарбовуємо конкретно кнопки альтернатив (що починаються з alt_ або switch_) */
-div[data-testid="column"] div.stButton button p {
-    color: white !important;
-}
-
-/* Робимо кнопки альтернатив кольору #fc6794 за допомогою стилю з використанням унікальних селекторів */
-.alt-pink-btn button {
-    background-color: #fc6794 !important;
-    color: white !important;
-    border: none !important;
-}
-.alt-pink-btn button:hover {
-    background-color: #e05581 !important;
     color: white !important;
 }
 
@@ -269,25 +247,18 @@ if st.session_state.page == "shop":
                 
                 col_item_chk, col_item_btn = st.columns([3, 1])
                 with col_item_chk:
-                    is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
-                    if is_checked:
-                        if p_name not in st.session_state.cart:
-                            st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category, 'months': 3}
-                    else:
-                        if p_name in st.session_state.cart:
-                            del st.session_state.cart[p_name]
+                    # Перевіряємо чи товар є в кошику, щоб синхронізувати стан чекбокса
+                    is_in_cart = p_name in st.session_state.cart
+                    is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", value=is_in_cart, key=f"chk_{r.name}")
+                    
+                    if is_checked and not is_in_cart:
+                        st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category, 'months': 3}
+                        st.rerun()
+                    elif not is_checked and is_in_cart:
+                        del st.session_state.cart[p_name]
+                        st.rerun()
                 
                 with col_item_btn:
-                    # Застосовуємо ін'єкцію стилю безпосередньо до цієї кнопки через HTML-обгортку
-                    st.markdown("""
-                        <style>
-                        div[data-testid="column"] button[key*="alt_btn_"] {
-                            background-color: #fc6794 !important;
-                            color: white !important;
-                        }
-                        </style>
-                    """, unsafe_allow_html=True)
-                    
                     if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
@@ -327,7 +298,9 @@ if st.session_state.page == "shop":
             total_cost = 0
             standard_duration_months = 2.0  
             
-            for p_name, item_data in list(st.session_state.cart.items()):
+            # Робимо копію ключів, щоб безпечно видаляти елементи з циклу
+            for p_name in list(st.session_state.cart.keys()):
+                item_data = st.session_state.cart[p_name]
                 p_row = item_data['row']
                 
                 st.markdown(f"### {p_name}")
@@ -355,6 +328,7 @@ if st.session_state.page == "shop":
                 with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
                 with col_del:
+                    # Кнопка видалення тепер миттєво видаляє продукт зі стану та перезапускає сторінку
                     if st.button("❌", key=f"del_{p_name}"):
                         del st.session_state.cart[p_name]
                         st.rerun()
