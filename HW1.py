@@ -250,7 +250,8 @@ if st.session_state.page == "shop":
                     is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
                     if is_checked:
                         if p_name not in st.session_state.cart:
-                            st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category}
+                            # Додаємо з дефолтним терміном 3 місяці
+                            st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category, 'months': 3}
                     else:
                         if p_name in st.session_state.cart:
                             del st.session_state.cart[p_name]
@@ -273,9 +274,10 @@ if st.session_state.page == "shop":
                             alt_brand = alt_r['Brand']
                             alt_price = alt_r['Price']
                             if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
+                                old_months = st.session_state.cart.get(p_name, {}).get('months', 3)
                                 if p_name in st.session_state.cart:
                                     del st.session_state.cart[p_name]
-                                st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category}
+                                st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category, 'months': old_months}
                                 st.success(f"Switched to {alt_name}!")
                                 st.rerun()
 
@@ -289,36 +291,48 @@ if st.session_state.page == "shop":
             st.info("Your cart is empty. Select products on the left.")
         else:
             st.write(f"Items in bundle: **{len(st.session_state.cart)}**")
-            
             st.markdown("---")
-            st.markdown("### ⏳ Usage Duration")
-            standard_duration_months = 2.0  
-            desired_months = st.slider("How many months do you need?", min_value=1, max_value=12, value=3)
             
-            ratio = desired_months / standard_duration_months
-            packs_multiplier = math.ceil(ratio)
-            
-            st.write(f"Standard product duration: **{int(standard_duration_months)} months**")
-            st.write(f"Required packs per item: **{packs_multiplier} pack(s)** (rounded up)")
-            
-            st.markdown("---")
             total_cost = 0
+            standard_duration_months = 2.0  # Стандартний розрахунок: 1 упаковка на 2 місяці
             
             for p_name, item_data in list(st.session_state.cart.items()):
                 p_row = item_data['row']
+                
+                st.markdown(f"### {p_name}")
+                
+                # Індивідуальний повзунок для кожного продукту
+                desired_months = st.slider(
+                    f"How many months do you need?", 
+                    min_value=1, 
+                    max_value=12, 
+                    value=item_data.get('months', 3), 
+                    key=f"slider_months_{p_name}"
+                )
+                
+                # Зберігаємо обрані місяці у стан
+                st.session_state.cart[p_name]['months'] = desired_months
+                
+                # Розрахунок упаковок із заокругленням у більшу сторону
+                ratio = desired_months / standard_duration_months
+                packs_multiplier = math.ceil(ratio)
+                
+                st.write(f"Standard product duration: **{int(standard_duration_months)}** months")
+                st.write(f"Required packs per item: **{packs_multiplier}** pack(s) (rounded up)")
+                
                 item_total = p_row['Price'] * packs_multiplier
                 total_cost += item_total
                 
-                col_c1, col_c2 = st.columns([3, 1])
-                with col_c1:
-                    st.write(f"**{p_name}**")
+                col_price, col_del = st.columns([3, 1])
+                with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
-                with col_c2:
+                with col_del:
                     if st.button("❌", key=f"del_{p_name}"):
                         del st.session_state.cart[p_name]
                         st.rerun()
+                
+                st.markdown("---")
             
-            st.markdown("---")
             st.markdown(f"### 💵 Total Investment: **${total_cost:.2f}**")
             
             if st.button("✅ Checkout Bundle", use_container_width=True):
