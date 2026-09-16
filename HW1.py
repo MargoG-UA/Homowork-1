@@ -89,7 +89,6 @@ if not st.session_state.splash_shown:
 
 
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
-# Плаваюча кнопка для коментарів підключається динамічно лише на головній сторінці
 floating_btn_css = """
 <style>
 .floating-btn {
@@ -424,7 +423,6 @@ else:
     st.sidebar.markdown("---")
 
     search_clicked = st.sidebar.button("Search", key="search_btn", use_container_width=True)
-    sort_category_clicked = st.sidebar.button("Sort by Categories", key="sort_cat_btn", use_container_width=True)
 
 
     # --- ОСНОВНА ЧАСТИНА ---
@@ -486,7 +484,7 @@ else:
 
 
     # 2. РЕЗУЛЬТАТИ ПОШУКУ
-    if search_clicked or sort_category_clicked:
+    if search_clicked:
 
         with st.spinner('Choosing the best for you...'):
             time.sleep(0.6)
@@ -513,13 +511,10 @@ else:
                 (filtered_df['Price'] <= selected_price_range[1])
                 ]
 
-            if sort_category_clicked:
-                filtered_df = filtered_df.sort_values(by=["Label", "Name"], ascending=[True, True])
-            else:
-                if sort_option == "price increase":
-                    filtered_df = filtered_df.sort_values(by="Price", ascending=True)
-                elif sort_option == "price decrease":
-                    filtered_df = filtered_df.sort_values(by="Price", ascending=False)
+            if sort_option == "price increase":
+                filtered_df = filtered_df.sort_values(by="Price", ascending=True)
+            elif sort_option == "price decrease":
+                filtered_df = filtered_df.sort_values(by="Price", ascending=False)
 
         if not filtered_df.empty:
             st.success(f"Products found: {len(filtered_df)}")
@@ -533,7 +528,7 @@ else:
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # Якір та секція коментарів тепер лише на головній сторінці
+    # Якір та секція коментарів лише на головній сторінці
     st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
 
     st.subheader("Comments")
