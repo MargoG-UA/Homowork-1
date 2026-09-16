@@ -245,30 +245,26 @@ if st.session_state.page == "shop":
                 p_brand = r['Brand']
                 p_price = r['Price']
                 
-                col_item_chk, col_item_btn = st.columns([3, 1])
-                with col_item_chk:
-                    chk_key = f"chk_{r.name}"
-                    is_in_cart = p_name in st.session_state.cart
-                    
-                    if chk_key not in st.session_state:
-                        st.session_state[chk_key] = is_in_cart
-
-                    is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=chk_key)
-                    
-                    if is_checked and not is_in_cart:
-                        st.session_state.cart[p_name] = {
-                            'row': r.to_dict(), 
-                            'category': chosen_category, 
-                            'months': 3, 
-                            'df_index': r.name
-                        }
-                        st.rerun()
-                    elif not is_checked and is_in_cart:
-                        del st.session_state.cart[p_name]
-                        st.rerun()
+                is_in_cart = p_name in st.session_state.cart
                 
-                with col_item_btn:
-                    if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
+                col_info, col_action, col_alt = st.columns([2.5, 1, 1])
+                with col_info:
+                    st.write(f"• **{p_name}** ({p_brand}) — **${p_price}**")
+                
+                with col_action:
+                    if not is_in_cart:
+                        if st.button("➕ Add", key=f"add_{r.name}"):
+                            st.session_state.cart[p_name] = {
+                                'row': r.to_dict(), 
+                                'category': chosen_category, 
+                                'months': 3
+                            }
+                            st.rerun()
+                    else:
+                        st.markdown("✅ Added")
+                
+                with col_alt:
+                    if st.button("🔄 Alt", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
@@ -285,23 +281,14 @@ if st.session_state.page == "shop":
                             alt_brand = alt_r['Brand']
                             alt_price = alt_r['Price']
                             if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
-                                old_item = st.session_state.cart.get(p_name, {})
-                                old_months = old_item.get('months', 3)
-                                old_df_idx = old_item.get('df_index')
-                                
-                                if old_df_idx is not None and f"chk_{old_df_idx}" in st.session_state:
-                                    st.session_state[f"chk_{old_df_idx}"] = False
-                                
+                                old_months = st.session_state.cart.get(p_name, {}).get('months', 3)
                                 if p_name in st.session_state.cart:
                                     del st.session_state.cart[p_name]
-                                
                                 st.session_state.cart[alt_name] = {
                                     'row': alt_r.to_dict(), 
                                     'category': chosen_category, 
-                                    'months': old_months,
-                                    'df_index': alt_r.name
+                                    'months': old_months
                                 }
-                                st.session_state[f"chk_{alt_r.name}"] = True
                                 st.success(f"Switched to {alt_name}!")
                                 st.rerun()
 
@@ -349,11 +336,8 @@ if st.session_state.page == "shop":
                 with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
                 with col_del:
-                    # При натисканні на хрестик видаляємо товар і скидаємо галочку зліва
+                    # Миттєве видалення товару з кошика за хрестиком
                     if st.button("❌", key=f"del_cart_{p_name}"):
-                        df_idx = item_data.get('df_index')
-                        if df_idx is not None and f"chk_{df_idx}" in st.session_state:
-                            st.session_state[f"chk_{df_idx}"] = False
                         del st.session_state.cart[p_name]
                         st.rerun()
                 
@@ -362,10 +346,6 @@ if st.session_state.page == "shop":
             st.markdown(f"### 💵 Total Investment: **${total_cost:.2f}**")
             
             if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", use_container_width=True):
-                for item_data in st.session_state.cart.values():
-                    df_idx = item_data.get('df_index')
-                    if df_idx is not None and f"chk_{df_idx}" in st.session_state:
-                        st.session_state[f"chk_{df_idx}"] = False
                 st.balloons()
                 st.success("Your skincare bundle order is successfully placed!")
                 st.session_state.cart = {}
