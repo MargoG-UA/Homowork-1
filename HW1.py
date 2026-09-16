@@ -129,7 +129,7 @@ div.stButton > button[kind="primary"]:hover {
     color: white !important;
 }
 
-/* Вторинні кнопки (для plus та alt) кольору #fc6794 з білим великим текстом */
+/* Вторинні кнопки (для plus, alt та хрестика) кольору #fc6794 з білим текстом */
 div.stButton > button[kind="secondary"], div.stButton > button:not([kind="primary"]) {
     background-color: #fc6794 !important;
     color: white !important;
@@ -275,7 +275,6 @@ if st.session_state.page == "shop":
                 
                 with col_action:
                     if not is_in_cart:
-                        # Тільки великий плюс білого кольору
                         if st.button("＋", key=f"add_{r.name}", type="secondary"):
                             st.session_state.cart[p_name] = {
                                 'row': r.to_dict(), 
@@ -359,7 +358,8 @@ if st.session_state.page == "shop":
                 with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
                 with col_del:
-                    if st.button("❌", key=f"del_cart_{p_name}", type="secondary"):
+                    # Кнопка видалення тепер має білий хрестик на рожевому фоні
+                    if st.button("✕", key=f"del_cart_{p_name}", type="secondary"):
                         del st.session_state.cart[p_name]
                         st.rerun()
                 
