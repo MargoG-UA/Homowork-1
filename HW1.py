@@ -113,7 +113,7 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* Стилізація стандартних кнопках Streamlit в темно-малиновий з білим текстом */
+/* Стилізація стандартних кнопок Streamlit в темно-малиновий з білим текстом */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -125,6 +125,16 @@ div.stButton > button {
 div.stButton > button:hover {
     background-color: #7a0b3f !important;
     color: white !important;
+}
+
+/* Світло-рожевий квадрат для вибору продуктів у магазині */
+.pink-shop-box {
+    background-color: #ffe6f0 !important;
+    border: 1px solid #ffb3d1 !important;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 0 15px rgba(252, 103, 148, 0.15);
+    margin-bottom: 20px;
 }
 
 /* Зміна фону блоків коментарів (st.info) на ніжно-рожевий з легким світінням */
@@ -201,6 +211,8 @@ if st.session_state.page == "shop":
     col_shop1, col_shop2 = st.columns([2, 1])
 
     with col_shop1:
+        # Обгортаємо блок вибору у світло-рожевий контейнер
+        st.markdown('<div class="pink-shop-box">', unsafe_allow_html=True)
         st.subheader("Select Products by Category")
         
         categories = sorted(list(df['Label'].unique()))
@@ -233,6 +245,7 @@ if st.session_state.page == "shop":
                 'category': chosen_category
             }
             st.success(f"Added {prod_row['Name']} to your bundle!")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_shop2:
         st.subheader("🛍️ Your Bundle & Cart")
