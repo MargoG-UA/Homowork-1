@@ -237,61 +237,64 @@ if st.session_state.page == "shop":
         if filtered_cat_df.empty:
             st.warning("No products found in this price range. Please adjust your budget.")
         else:
-            # ПОШУК ТОВАРУ ЗА НАЗВОЮ (необов'язковий)
-            search_query = st.text_input("🔍 Search specific product by name (leave empty to see all):", "")
+            product_names = sorted(filtered_cat_df['Name'].unique())
             
-            if search_query.strip():
-                display_df = filtered_cat_df[filtered_cat_df['Name'].str.lower().str.contains(search_query.strip().lower(), na=False)]
+            # ВИБІР КОНКРЕТНОГО ТОВАРУ ЧЕРЕЗ ВИПАДАЮЧИЙ СПИСОК (АБО ПЕРЕГЛЯД УСІХ)
+            selected_specific_product = st.selectbox(
+                "Choose specific product (optional):", 
+                ["— View all products in category —"] + product_names
+            )
+            
+            if selected_specific_product != "— View all products in category —":
+                # Якщо обрано конкретний товар
+                display_df = filtered_cat_df[filtered_cat_df['Name'] == selected_specific_product]
             else:
+                # Якщо нічого не обрано — показуємо загальний список категорії
                 display_df = filtered_cat_df
 
-            if display_df.empty:
-                st.info("No products match your search query in this budget range.")
-            else:
-                st.markdown(f"#### 🧴 Products in '{chosen_category}':")
+            st.markdown(f"#### 🧴 Products in '{chosen_category}':")
+            
+            for idx, r in display_df.head(10).iterrows():
+                p_name = r['Name']
+                p_brand = r['Brand']
+                p_price = r['Price']
                 
-                # Показуємо товари (до 10 штук якщо нічого не введено, або всі знайдени за пошуком)
-                for idx, r in display_df.head(10).iterrows():
-                    p_name = r['Name']
-                    p_brand = r['Brand']
-                    p_price = r['Price']
+                col_item_chk, col_item_btn = st.columns([3, 1])
+                with col_item_chk:
+                    is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
+                    if is_checked:
+                        if p_name not in st.session_state.cart:
+                            st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category}
+                    else:
+                        if p_name in st.session_state.cart:
+                            del st.session_state.cart[p_name]
+                
+                with col_item_btn:
+                    if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
+                        st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
+                
+                if st.session_state.get(f"show_alt_{r.name}", False):
+                    st.info(f"✨ Alternatives for **{p_name}**:")
+                    cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < p_price].sort_values(by='Price', ascending=False).head(2)
+                    expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > p_price].sort_values(by='Price', ascending=True).head(2)
+                    alt_box_df = pd.concat([cheaper_alt, expensive_alt])
                     
-                    col_item_chk, col_item_btn = st.columns([3, 1])
-                    with col_item_chk:
-                        is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
-                        if is_checked:
-                            if p_name not in st.session_state.cart:
-                                st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category}
-                        else:
-                            if p_name in st.session_state.cart:
-                                del st.session_state.cart[p_name]
-                    
-                    with col_item_btn:
-                        if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
-                            st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
-                    
-                    if st.session_state.get(f"show_alt_{r.name}", False):
-                        st.info(f"✨ Alternatives for **{p_name}**:")
-                        cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < p_price].sort_values(by='Price', ascending=False).head(2)
-                        expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > p_price].sort_values(by='Price', ascending=True).head(2)
-                        alt_box_df = pd.concat([cheaper_alt, expensive_alt])
-                        
-                        if alt_box_df.empty:
-                            st.write("No other alternatives in this budget range.")
-                        else:
-                            for _, alt_r in alt_box_df.iterrows():
-                                alt_name = alt_r['Name']
-                                alt_brand = alt_r['Brand']
-                                alt_price = alt_r['Price']
-                                if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
-                                    if p_name in st.session_state.cart:
-                                        del st.session_state.cart[p_name]
-                                    st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category}
-                                    st.success(f"Switched to {alt_name}!")
-                                    st.rerun()
+                    if alt_box_df.empty:
+                        st.write("No other alternatives in this budget range.")
+                    else:
+                        for _, alt_r in alt_box_df.iterrows():
+                            alt_name = alt_r['Name']
+                            alt_brand = alt_r['Brand']
+                            alt_price = alt_r['Price']
+                            if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
+                                if p_name in st.session_state.cart:
+                                    del st.session_state.cart[p_name]
+                                st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category}
+                                st.success(f"Switched to {alt_name}!")
+                                st.rerun()
 
-                if len(display_df) > 10:
-                    st.caption(f"Showing first 10 matches out of {len(display_df)}. Refine your search for more specific results.")
+            if len(display_df) > 10 and selected_specific_product == "— View all products in category —":
+                st.caption(f"Showing first 10 items out of {len(display_df)}. Select a specific product above to filter directly.")
                 
         st.markdown('</div>', unsafe_allow_html=True)
 
