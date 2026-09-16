@@ -127,6 +127,17 @@ div.stButton > button:hover {
     color: white !important;
 }
 
+/* Спеціальний клас для кнопок альтернатив кольору #fc6794 */
+.alt-btn-wrapper div.stButton > button {
+    background-color: #fc6794 !important;
+    color: white !important;
+}
+
+.alt-btn-wrapper div.stButton > button:hover {
+    background-color: #e05581 !important;
+    color: white !important;
+}
+
 /* Зміна фону блоків повідомлень/альтернатив */
 [data-testid="stNotification"] {
     background-color: #ffe6f0 !important;
@@ -250,15 +261,17 @@ if st.session_state.page == "shop":
                     is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
                     if is_checked:
                         if p_name not in st.session_state.cart:
-                            # Додаємо з дефолтним терміном 3 місяці
                             st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category, 'months': 3}
                     else:
                         if p_name in st.session_state.cart:
                             del st.session_state.cart[p_name]
                 
                 with col_item_btn:
+                    # Обгортаємо у клас для кольору #fc6794
+                    st.markdown('<div class="alt-btn-wrapper">', unsafe_allow_html=True)
                     if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
+                    st.markdown('</div>', unsafe_allow_html=True)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
                     st.info(f"✨ Alternatives for **{p_name}**:")
@@ -294,14 +307,13 @@ if st.session_state.page == "shop":
             st.markdown("---")
             
             total_cost = 0
-            standard_duration_months = 2.0  # Стандартний розрахунок: 1 упаковка на 2 місяці
+            standard_duration_months = 2.0  
             
             for p_name, item_data in list(st.session_state.cart.items()):
                 p_row = item_data['row']
                 
                 st.markdown(f"### {p_name}")
                 
-                # Індивідуальний повзунок для кожного продукту
                 desired_months = st.slider(
                     f"How many months do you need?", 
                     min_value=1, 
@@ -310,10 +322,8 @@ if st.session_state.page == "shop":
                     key=f"slider_months_{p_name}"
                 )
                 
-                # Зберігаємо обрані місяці у стан
                 st.session_state.cart[p_name]['months'] = desired_months
                 
-                # Розрахунок упаковок із заокругленням у більшу сторону
                 ratio = desired_months / standard_duration_months
                 packs_multiplier = math.ceil(ratio)
                 
