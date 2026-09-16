@@ -43,6 +43,8 @@ def load_data():
     file_path = os.path.join(base_dir, "cosmatics_dataset.csv")
     df = pd.read_csv(file_path)
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce').fillna(15.0)
+    # Приводимо Rank до чинного числового типу для коректного сортування
+    df['Rank'] = pd.to_numeric(df['Rank'], errors='coerce').fillna(0.0)
     return df
 
 
@@ -511,7 +513,10 @@ else:
                 (filtered_df['Price'] <= selected_price_range[1])
                 ]
 
-            if sort_option == "price increase":
+            # Логіка сортування
+            if sort_option == "relevance":
+                filtered_df = filtered_df.sort_values(by="Rank", ascending=False)
+            elif sort_option == "price increase":
                 filtered_df = filtered_df.sort_values(by="Price", ascending=True)
             elif sort_option == "price decrease":
                 filtered_df = filtered_df.sort_values(by="Price", ascending=False)
