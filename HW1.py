@@ -239,7 +239,6 @@ if st.session_state.page == "shop":
         else:
             product_names = sorted(filtered_cat_df['Name'].unique())
             
-            # Додаємо можливість не обирати продукт у категорії
             selected_prod_name = st.selectbox("Choose Product:", ["— None (Skip category) —"] + product_names)
             
             if selected_prod_name != "— None (Skip category) —":
@@ -267,6 +266,14 @@ if st.session_state.page == "shop":
                     st.success(f"Added {prod_row['Name']} to your bundle!")
             else:
                 st.info("You skipped this category.")
+                
+            # ВІДОБРАЖЕННЯ РЕЗУЛЬТАТІВ (СПИСКУ ТОВАРІВ У КАТЕГОРІЇ З МОЖЛИВІСТЮ КЛАСНУТИ)
+            st.markdown("---")
+            st.markdown(f"#### 🧴 Available Products in '{chosen_category}' (matching budget):")
+            for idx, r in filtered_cat_df.head(5).iterrows():
+                st.write(f"• **{r['Name']}** ({r['Brand']}) — **${r['Price']}**")
+            if len(filtered_cat_df) > 5:
+                st.caption(f"And {len(filtered_cat_df) - 5} more products available in selection above...")
                 
         st.markdown('</div>', unsafe_allow_html=True)
 
