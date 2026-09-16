@@ -30,13 +30,11 @@ if 'comments' not in st.session_state:
 if 'splash_shown' not in st.session_state:
     st.session_state.splash_shown = False
 
-# Стан для перемикання між головною сторінкою та магазином
 if 'page' not in st.session_state:
     st.session_state.page = "main"
 
-# Стан для кошика магазину
 if 'cart' not in st.session_state:
-    st.session_state.cart = {}  # {product_name: {'row': row_data, 'qty_packs': int}}
+    st.session_state.cart = {}  # {product_name: {'row': row_data}}
 
 
 @st.cache_data
@@ -44,7 +42,6 @@ def load_data():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, "cosmatics_dataset.csv")
     df = pd.read_csv(file_path)
-    # Перевіримо наявність ціни та заповнимо пропуски якщо є
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce').fillna(15.0)
     return df
 
@@ -195,18 +192,15 @@ if st.session_state.page == "shop":
         categories = sorted(list(df['Label'].unique()))
         chosen_category = st.selectbox("Choose Category:", categories)
         
-        # Фільтруємо товари обраної категорії
         cat_df = df[df['Label'] == chosen_category]
         product_names = sorted(cat_df['Name'].unique())
         
         selected_prod_name = st.selectbox("Choose Product:", product_names)
         
-        # Отримуємо дані обраного продукту
         prod_row = cat_df[cat_df['Name'] == selected_prod_name].iloc[0]
         
         st.write(f"🏷️ **Brand:** {prod_row['Brand']} | 💵 **Price:** ${prod_row['Price']} | ⭐ **Rate:** {prod_row.get('Rank', 'NO DATA')}")
         
-        # Альтернативи (дорожчі / дешевші товари у тій же категорії)
         st.markdown("#### 🔄 Alternatives (Cheaper / More Expensive)")
         cheaper_alt = cat_df[cat_df['Price'] < prod_row['Price']].sort_values(by='Price', ascending=False).head(2)
         expensive_alt = cat_df[cat_df['Price'] > prod_row['Price']].sort_values(by='Price', ascending=True).head(2)
@@ -216,9 +210,8 @@ if st.session_state.page == "shop":
             alt_options = [f"{r['Name']} ({r['Brand']}) - ${r['Price']}" for _, r in alt_df.iterrows()]
             chosen_alt = st.selectbox("Switch to alternative (optional):", ["Keep current"] + alt_options)
             if chosen_alt != "Keep current":
-                # Знаходимо реальний рядок альтернативи
                 alt_name = chosen_alt.split(" (")[0]
-                prod_row = cat_df[cat_df['Name'] == alt_name].iloc0
+                prod_row = cat_df[cat_df['Name'] == alt_name].iloc[0]
         
         if st.button("➕ Add to Cart", use_container_width=True):
             st.session_state.cart[prod_row['Name']] = {
@@ -235,13 +228,11 @@ if st.session_state.page == "shop":
         else:
             st.write(f"Items in bundle: **{len(st.session_state.cart)}**")
             
-            # Вибір терміну користування
             st.markdown("---")
             st.markdown("### ⏳ Usage Duration")
-            standard_duration_months = 2.0  # Усі продукти розраховані на 2 місяці за замовчуванням
+            standard_duration_months = 2.0  
             desired_months = st.slider("How many months do you need?", min_value=1, max_value=12, value=3)
             
-            # Коефіцієнт та округлення в більшу сторону
             ratio = desired_months / standard_duration_months
             packs_multiplier = math.ceil(ratio)
             
@@ -277,16 +268,8 @@ if st.session_state.page == "shop":
 # РЕЖИМ 2: ГОЛОВНА СТОРІНКА (ПОШУК ТА ДІАГРАМА)
 # ==========================================
 else:
-    # --- КНОПКА ПЕРЕХОДУ В МАГАЗИН ---
-    st.markdown(
-        """
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
-        </div>
-        """, 
-        unsafe_allow_html=True
-    )
-    
-    col_title, col_btn = st.columns([3, 1])
+    # Використовуємо ширшу ліву колонку для заголовка та зручнішу для кнопки магазину
+    col_title, col_btn = st.columns([2.2, 1.8])
     with col_title:
         st.markdown(
             "<h1 style='color: #950e4e; margin-top: 0;'>Your personal assistant to make a great product choice</h1>", 
@@ -294,94 +277,9 @@ else:
         )
     with col_btn:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🛍️ Open Shop & Bundle Builder", use_container_width=True):
+        if st.button("🛒 Open Shop & Bundle", use_container_width=True):
             st.session_state.page = "shop"
             st.rerun()
-
-
-    # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
-    custom_css = """
-    <style>
-    /* Плаваюча кнопка для коментарів */
-    .floating-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #950e4e !important;
-        color: white !important;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        text-align: center;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-        font-size: 30px;
-        line-height: 60px;
-        z-index: 1000;
-        text-decoration: none;
-        transition: background-color 0.3s ease;
-    }
-    .floating-btn:hover {
-        background-color: #7a0b3f !important;
-    }
-
-    /* Зміна фону блоків коментарів (st.info) на ніжно-рожевий з легким світінням */
-    [data-testid="stNotification"] {
-        background-color: #ffe6f0 !important;
-        border: 1px solid #ffb3d1 !important;
-        color: #880e4f !important;
-        box-shadow: 0 0 10px rgba(252, 103, 148, 0.2);
-    }
-
-    [data-testid="stNotification"] p {
-        color: #880e4f !important;
-    }
-
-    /* Зміна фону бокової панелі */
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #fc6794 !important;
-    }
-
-    /* Білий текст для заголовків, міток, радіокнопок у боковій панелі */
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] label p,
-    [data-testid="stSidebar"] .stRadio p {
-        color: white !important;
-    }
-
-    /* Колір для ПОВЗУНКА */
-    [data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
-    [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
-    [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
-    [data-testid="stSidebar"] .stSlider p {
-        color: white !important;
-    }
-
-    [data-testid="stSidebar"] .stSlider [role="slider"] {
-        background-color: white !important;
-        border: 2px solid white !important;
-        box-shadow: none !important;
-    }
-
-    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
-        background-color: white !important;
-    }
-
-    [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
-        background-color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    /* Темний текст всередині полів вибору */
-    [data-testid="stSidebar"] [data-baseweb="select"] span {
-        color: #31333F !important;
-    }
-    </style>
-    <a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
-    """
-    st.markdown(custom_css, unsafe_allow_html=True)
-
 
     # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
     st.sidebar.header("Filters")
