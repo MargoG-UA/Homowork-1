@@ -247,7 +247,6 @@ if st.session_state.page == "shop":
                 
                 col_item_chk, col_item_btn = st.columns([3, 1])
                 with col_item_chk:
-                    # Перевіряємо чи товар є в кошику, щоб синхронізувати стан чекбокса
                     is_in_cart = p_name in st.session_state.cart
                     is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", value=is_in_cart, key=f"chk_{r.name}")
                     
@@ -298,7 +297,7 @@ if st.session_state.page == "shop":
             total_cost = 0
             standard_duration_months = 2.0  
             
-            # Робимо копію ключів, щоб безпечно видаляти елементи з циклу
+            # Використовуємо list(st.session_state.cart.keys()), щоб безпечно видаляти елементи
             for p_name in list(st.session_state.cart.keys()):
                 item_data = st.session_state.cart[p_name]
                 p_row = item_data['row']
@@ -328,8 +327,8 @@ if st.session_state.page == "shop":
                 with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
                 with col_del:
-                    # Кнопка видалення тепер миттєво видаляє продукт зі стану та перезапускає сторінку
-                    if st.button("❌", key=f"del_{p_name}"):
+                    # Миттєве видалення товару за хрестиком
+                    if st.button("❌", key=f"del_cart_{p_name}"):
                         del st.session_state.cart[p_name]
                         st.rerun()
                 
