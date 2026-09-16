@@ -212,7 +212,7 @@ if st.session_state.page == "shop":
 
     with col_shop1:
         st.markdown('<div class="pink-shop-box">', unsafe_allow_html=True)
-        st.subheader("Select Products by Category")
+        st.subheader("Select Products by Category & Budget")
         
         categories = sorted(list(df['Label'].unique()))
         chosen_category = st.selectbox("Choose Category:", categories)
@@ -237,43 +237,54 @@ if st.session_state.page == "shop":
         if filtered_cat_df.empty:
             st.warning("No products found in this price range. Please adjust your budget.")
         else:
-            product_names = sorted(filtered_cat_df['Name'].unique())
+            st.markdown(f"#### 🧴 Clickable Products in '{chosen_category}':")
             
-            selected_prod_name = st.selectbox("Choose Product:", ["— None (Skip category) —"] + product_names)
-            
-            if selected_prod_name != "— None (Skip category) —":
-                prod_row = filtered_cat_df[filtered_cat_df['Name'] == selected_prod_name].iloc[0]
+            # Відображення інтерактивних товарів із чекбоксами для вибору та альтернативами
+            for idx, r in filtered_cat_df.head(6).iterrows():
+                p_name = r['Name']
+                p_brand = r['Brand']
+                p_price = r['Price']
                 
-                st.write(f"🏷️ **Brand:** {prod_row['Brand']} | 💵 **Price:** ${prod_row['Price']} | ⭐ **Rate:** {prod_row.get('Rank', 'NO DATA')}")
+                col_item_chk, col_item_btn = st.columns([3, 1])
+                with col_item_chk:
+                    is_checked = st.checkbox(f"• **{p_name}** ({p_brand}) — **${p_price}**", key=f"chk_{r.name}")
+                    if is_checked:
+                        if p_name not in st.session_state.cart:
+                            st.session_state.cart[p_name] = {'row': r.to_dict(), 'category': chosen_category}
+                    else:
+                        if p_name in st.session_state.cart:
+                            # Видаляємо з кошика, якщо зняли чекбокс
+                            del st.session_state.cart[p_name]
                 
-                st.markdown("#### 🔄 Alternatives (Cheaper / More Expensive within budget)")
-                cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < prod_row['Price']].sort_values(by='Price', ascending=False).head(2)
-                expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > prod_row['Price']].sort_values(by='Price', ascending=True).head(2)
+                with col_item_btn:
+                    # Кнопка для перегляду альтернатив цього конкретного товару
+                    if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
+                        st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
-                alt_df = pd.concat([cheaper_alt, expensive_alt])
-                if not alt_df.empty:
-                    alt_options = [f"{r['Name']} ({r['Brand']}) - ${r['Price']}" for _, r in alt_df.iterrows()]
-                    chosen_alt = st.selectbox("Switch to alternative (optional):", ["Keep current"] + alt_options)
-                    if chosen_alt != "Keep current":
-                        alt_name = chosen_alt.split(" (")[0]
-                        prod_row = filtered_cat_df[filtered_cat_df['Name'] == alt_name].iloc[0]
-                
-                if st.button("➕ Add to Cart", use_container_width=True):
-                    st.session_state.cart[prod_row['Name']] = {
-                        'row': prod_row.to_dict(),
-                        'category': chosen_category
-                    }
-                    st.success(f"Added {prod_row['Name']} to your bundle!")
-            else:
-                st.info("You skipped this category.")
-                
-            # ВІДОБРАЖЕННЯ РЕЗУЛЬТАТІВ (СПИСКУ ТОВАРІВ У КАТЕГОРІЇ З МОЖЛИВІСТЮ КЛАСНУТИ)
-            st.markdown("---")
-            st.markdown(f"#### 🧴 Available Products in '{chosen_category}' (matching budget):")
-            for idx, r in filtered_cat_df.head(5).iterrows():
-                st.write(f"• **{r['Name']}** ({r['Brand']}) — **${r['Price']}**")
-            if len(filtered_cat_df) > 5:
-                st.caption(f"And {len(filtered_cat_df) - 5} more products available in selection above...")
+                # Якщо натиснута кнопка альтернатив для цього товару
+                if st.session_state.get(f"show_alt_{r.name}", False):
+                    st.info(f"✨ Alternatives for **{p_name}**:")
+                    cheaper_alt = filtered_cat_df[filtered_cat_df['Price'] < p_price].sort_values(by='Price', ascending=False).head(2)
+                    expensive_alt = filtered_cat_df[filtered_cat_df['Price'] > p_price].sort_values(by='Price', ascending=True).head(2)
+                    alt_box_df = pd.concat([cheaper_alt, expensive_alt])
+                    
+                    if alt_box_df.empty:
+                        st.write("No other alternatives in this budget range.")
+                    else:
+                        for _, alt_r in alt_box_df.iterrows():
+                            alt_name = alt_r['Name']
+                            alt_brand = alt_r['Brand']
+                            alt_price = alt_r['Price']
+                            if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
+                                # Замінюємо товар у кошику або додаємо альтернативу
+                                if p_name in st.session_state.cart:
+                                    del st.session_state.cart[p_name]
+                                st.session_state.cart[alt_name] = {'row': alt_r.to_dict(), 'category': chosen_category}
+                                st.success(f"Switched to {alt_name}!")
+                                st.rerun()
+
+            if len(filtered_cat_df) > 6:
+                st.caption(f"And {len(filtered_cat_df) - 6} more products available in this category...")
                 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -281,7 +292,7 @@ if st.session_state.page == "shop":
         st.subheader("🛍️ Your Bundle & Cart")
         
         if not st.session_state.cart:
-            st.info("Your cart is empty. Add products from the left.")
+            st.info("Your cart is empty. Select products on the left.")
         else:
             st.write(f"Items in bundle: **{len(st.session_state.cart)}**")
             
