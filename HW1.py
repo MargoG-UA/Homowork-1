@@ -113,18 +113,36 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* Стандартні кнопки сайту — темно-малинові */
-div.stButton > button {
+/* Первинні кнопки (Dark Raspberry з білим текстом) */
+div.stButton > button[kind="primary"] {
     background-color: #950e4e !important;
     color: white !important;
     border-radius: 8px !important;
     border: none !important;
     transition: background-color 0.3s ease;
 }
-
-div.stButton > button:hover {
+div.stButton > button[kind="primary"] p {
+    color: white !important;
+}
+div.stButton > button[kind="primary"]:hover {
     background-color: #7a0b3f !important;
     color: white !important;
+}
+
+/* Вторинні кнопки (Add, Alt тощо) кольору #fc6794 з чорним текстом */
+div.stButton > button[kind="secondary"], div.stButton > button:not([kind="primary"]) {
+    background-color: #fc6794 !important;
+    color: black !important;
+    border-radius: 8px !important;
+    border: none !important;
+    transition: background-color 0.3s ease;
+}
+div.stButton > button[kind="secondary"] p, div.stButton > button:not([kind="primary"]) p {
+    color: black !important;
+}
+div.stButton > button[kind="secondary"]:hover, div.stButton > button:not([kind="primary"]):hover {
+    background-color: #e05581 !important;
+    color: black !important;
 }
 
 /* Зміна фону блоків повідомлень/альтернатив */
@@ -192,7 +210,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 if st.session_state.page == "shop":
     st.markdown("<h1 style='color: #950e4e;'>🛒 Interactive Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
     
-    if st.button("⬅️ Back to Main Assistant", key="back_main_btn"):
+    if st.button("⬅️ Back to Main Assistant", key="back_main_btn", type="primary"):
         st.session_state.page = "main"
         st.rerun()
 
@@ -253,7 +271,7 @@ if st.session_state.page == "shop":
                 
                 with col_action:
                     if not is_in_cart:
-                        if st.button("➕ Add", key=f"add_{r.name}"):
+                        if st.button("➕ Add", key=f"add_{r.name}", type="secondary"):
                             st.session_state.cart[p_name] = {
                                 'row': r.to_dict(), 
                                 'category': chosen_category, 
@@ -264,7 +282,7 @@ if st.session_state.page == "shop":
                         st.markdown("✅ Added")
                 
                 with col_alt:
-                    if st.button("🔄 Alt", key=f"alt_btn_{r.name}"):
+                    if st.button("🔄 Alt", key=f"alt_btn_{r.name}", type="secondary"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
@@ -280,7 +298,7 @@ if st.session_state.page == "shop":
                             alt_name = alt_r['Name']
                             alt_brand = alt_r['Brand']
                             alt_price = alt_r['Price']
-                            if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
+                            if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}", type="secondary"):
                                 old_months = st.session_state.cart.get(p_name, {}).get('months', 3)
                                 if p_name in st.session_state.cart:
                                     del st.session_state.cart[p_name]
@@ -336,8 +354,7 @@ if st.session_state.page == "shop":
                 with col_price:
                     st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
                 with col_del:
-                    # Миттєве видалення товару з кошика за хрестиком
-                    if st.button("❌", key=f"del_cart_{p_name}"):
+                    if st.button("❌", key=f"del_cart_{p_name}", type="secondary"):
                         del st.session_state.cart[p_name]
                         st.rerun()
                 
@@ -345,7 +362,7 @@ if st.session_state.page == "shop":
             
             st.markdown(f"### 💵 Total Investment: **${total_cost:.2f}**")
             
-            if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", use_container_width=True):
+            if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", type="primary", use_container_width=True):
                 st.balloons()
                 st.success("Your skincare bundle order is successfully placed!")
                 st.session_state.cart = {}
@@ -362,7 +379,7 @@ else:
         )
     with col_btn:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🛒 Open Shop & Bundle", key="open_shop_btn", use_container_width=True):
+        if st.button("🛒 Open Shop & Bundle", key="open_shop_btn", type="primary", use_container_width=True):
             st.session_state.page = "shop"
             st.rerun()
 
@@ -424,8 +441,8 @@ else:
 
     st.sidebar.markdown("---")
 
-    search_clicked = st.sidebar.button("Search", key="search_btn", use_container_width=True)
-    sort_category_clicked = st.sidebar.button("Sort by Categories", key="sort_cat_btn", use_container_width=True)
+    search_clicked = st.sidebar.button("Search", key="search_btn", type="primary", use_container_width=True)
+    sort_category_clicked = st.sidebar.button("Sort by Categories", key="sort_cat_btn", type="primary", use_container_width=True)
 
 
     # --- ОСНОВНА ЧАСТИНА ---
