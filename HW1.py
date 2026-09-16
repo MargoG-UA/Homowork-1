@@ -89,9 +89,9 @@ if not st.session_state.splash_shown:
 
 
 # --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
-custom_css = """
+# Плаваюча кнопка для коментарів підключається динамічно лише на головній сторінці
+floating_btn_css = """
 <style>
-/* Плаваюча кнопка для коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
@@ -113,7 +113,6 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* УСІ кнопки на сайті кольору #950e4e з білим текстом */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -131,7 +130,6 @@ div.stButton > button:hover {
     color: white !important;
 }
 
-/* Зміна фону блоків повідомлень/альтернатив */
 [data-testid="stNotification"] {
     background-color: #ffe6f0 !important;
     border: 1px solid #ffb3d1 !important;
@@ -143,12 +141,10 @@ div.stButton > button:hover {
     color: #880e4f !important;
 }
 
-/* Зміна фону бокової панелі */
 [data-testid="stSidebar"] > div:first-child {
     background-color: #fc6794 !important;
 }
 
-/* Білий текст для заголовків, міток, радіокнопок у боковій панелі */
 [data-testid="stSidebar"] h1,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3,
@@ -158,7 +154,6 @@ div.stButton > button:hover {
     color: white !important;
 }
 
-/* Колір для ПОВЗУНКА */
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
 [data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
@@ -180,14 +175,15 @@ div.stButton > button:hover {
     background-color: rgba(255, 255, 255, 0.4) !important;
 }
 
-/* Темний текст всередині полів вибору */
 [data-testid="stSidebar"] [data-baseweb="select"] span {
     color: #31333F !important;
 }
 </style>
-<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>
 """
-st.markdown(custom_css, unsafe_allow_html=True)
+
+st.markdown(floating_btn_css, unsafe_allow_html=True)
+if st.session_state.page == "main":
+    st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
 
 
 # ==========================================
@@ -537,7 +533,7 @@ else:
 
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    # Якір для плаваючої кнопки коментарів
+    # Якір та секція коментарів тепер лише на головній сторінці
     st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
 
     st.subheader("Comments")
