@@ -129,20 +129,24 @@ div.stButton > button[kind="primary"]:hover {
     color: white !important;
 }
 
-/* Вторинні кнопки (Add тощо) кольору #fc6794 з чорним текстом */
+/* Вторинні кнопки (для plus та alt) кольору #fc6794 з білим великим текстом */
 div.stButton > button[kind="secondary"], div.stButton > button:not([kind="primary"]) {
     background-color: #fc6794 !important;
-    color: black !important;
+    color: white !important;
     border-radius: 8px !important;
     border: none !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
     transition: background-color 0.3s ease;
 }
 div.stButton > button[kind="secondary"] p, div.stButton > button:not([kind="primary"]) p {
-    color: black !important;
+    color: white !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
 }
 div.stButton > button[kind="secondary"]:hover, div.stButton > button:not([kind="primary"]):hover {
     background-color: #e05581 !important;
-    color: black !important;
+    color: white !important;
 }
 
 /* Зміна фону блоків повідомлень/альтернатив */
@@ -271,7 +275,8 @@ if st.session_state.page == "shop":
                 
                 with col_action:
                     if not is_in_cart:
-                        if st.button("➕ Add", key=f"add_{r.name}", type="secondary"):
+                        # Тільки великий плюс білого кольору
+                        if st.button("＋", key=f"add_{r.name}", type="secondary"):
                             st.session_state.cart[p_name] = {
                                 'row': r.to_dict(), 
                                 'category': chosen_category, 
@@ -282,7 +287,6 @@ if st.session_state.page == "shop":
                         st.markdown("✅ Added")
                 
                 with col_alt:
-                    # Прибрано напис "Alt", залишилась лише іконка 🔄
                     if st.button("🔄", key=f"alt_btn_{r.name}", type="secondary"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
