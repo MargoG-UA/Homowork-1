@@ -113,7 +113,7 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* Загальні кнопки (темно-малинові з білим текстом) */
+/* Стандартні кнопки сайту — темно-малинові */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -127,14 +127,15 @@ div.stButton > button:hover {
     color: white !important;
 }
 
-/* Спеціальний клас для світло-рожевих кнопок альтернатив */
-.pink-alt-btn div.stButton > button {
+/* Світло-рожеві кнопки для альтернатив */
+.pink-alt-wrapper button {
     background-color: #ffe6f0 !important;
     color: #950e4e !important;
     border: 1px solid #ffb3d1 !important;
+    border-radius: 8px !important;
 }
 
-.pink-alt-btn div.stButton > button:hover {
+.pink-alt-wrapper button:hover {
     background-color: #ffcce6 !important;
     color: #7a0b3f !important;
 }
@@ -279,8 +280,7 @@ if st.session_state.page == "shop":
                             del st.session_state.cart[p_name]
                 
                 with col_item_btn:
-                    # Обгортаємо кнопку альтернатив у світло-рожевий стиль
-                    st.markdown('<div class="pink-alt-btn">', unsafe_allow_html=True)
+                    st.markdown('<div class="pink-alt-wrapper">', unsafe_allow_html=True)
                     if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                     st.markdown('</div>', unsafe_allow_html=True)
@@ -298,7 +298,7 @@ if st.session_state.page == "shop":
                             alt_name = alt_r['Name']
                             alt_brand = alt_r['Brand']
                             alt_price = alt_r['Price']
-                            st.markdown('<div class="pink-alt-btn">', unsafe_allow_html=True)
+                            st.markdown('<div class="pink-alt-wrapper">', unsafe_allow_html=True)
                             if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
                                 if p_name in st.session_state.cart:
                                     del st.session_state.cart[p_name]
