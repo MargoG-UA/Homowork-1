@@ -34,7 +34,7 @@ if 'page' not in st.session_state:
     st.session_state.page = "main"
 
 if 'cart' not in st.session_state:
-    st.session_state.cart = {}  # {product_name: {'row': row_data}}
+    st.session_state.cart = {}
 
 
 @st.cache_data
@@ -111,6 +111,20 @@ custom_css = """
 }
 .floating-btn:hover {
     background-color: #7a0b3f !important;
+}
+
+/* Стилізація стандартних кнопках Streamlit в темно-малиновий з білим текстом */
+div.stButton > button {
+    background-color: #950e4e !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: none !important;
+    transition: background-color 0.3s ease;
+}
+
+div.stButton > button:hover {
+    background-color: #7a0b3f !important;
+    color: white !important;
 }
 
 /* Зміна фону блоків коментарів (st.info) на ніжно-рожевий з легким світінням */
@@ -268,7 +282,6 @@ if st.session_state.page == "shop":
 # РЕЖИМ 2: ГОЛОВНА СТОРІНКА (ПОШУК ТА ДІАГРАМА)
 # ==========================================
 else:
-    # Використовуємо ширшу ліву колонку для заголовка та зручнішу для кнопки магазину
     col_title, col_btn = st.columns([2.2, 1.8])
     with col_title:
         st.markdown(
