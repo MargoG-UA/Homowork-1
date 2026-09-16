@@ -113,7 +113,7 @@ custom_css = """
     background-color: #7a0b3f !important;
 }
 
-/* Стандартні кнопки сайту — темно-малинові */
+/* Стандартні головні кнопки сайту — темно-малинові */
 div.stButton > button {
     background-color: #950e4e !important;
     color: white !important;
@@ -127,13 +127,24 @@ div.stButton > button:hover {
     color: white !important;
 }
 
-/* Спеціальний клас для кнопок альтернатив кольору #fc6794 */
-.alt-btn-wrapper div.stButton > button {
-    background-color: #fc6794 !important;
+/* Точний селектор для кнопок альтернатив кольору #fc6794 за ключем */
+div.stButton > button[kind="secondary"], 
+div.stButton > button[data-baseweb="button"] {
+    background-color: #950e4e !important;
+}
+
+/* Перефарбовуємо конкретно кнопки альтернатив (що починаються з alt_ або switch_) */
+div[data-testid="column"] div.stButton button p {
     color: white !important;
 }
 
-.alt-btn-wrapper div.stButton > button:hover {
+/* Робимо кнопки альтернатив кольору #fc6794 за допомогою стилю з використанням унікальних селекторів */
+.alt-pink-btn button {
+    background-color: #fc6794 !important;
+    color: white !important;
+    border: none !important;
+}
+.alt-pink-btn button:hover {
     background-color: #e05581 !important;
     color: white !important;
 }
@@ -203,7 +214,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 if st.session_state.page == "shop":
     st.markdown("<h1 style='color: #950e4e;'>🛒 Interactive Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
     
-    if st.button("⬅️ Back to Main Assistant"):
+    if st.button("⬅️ Back to Main Assistant", key="back_main_btn"):
         st.session_state.page = "main"
         st.rerun()
 
@@ -267,11 +278,18 @@ if st.session_state.page == "shop":
                             del st.session_state.cart[p_name]
                 
                 with col_item_btn:
-                    # Обгортаємо у клас для кольору #fc6794
-                    st.markdown('<div class="alt-btn-wrapper">', unsafe_allow_html=True)
+                    # Застосовуємо ін'єкцію стилю безпосередньо до цієї кнопки через HTML-обгортку
+                    st.markdown("""
+                        <style>
+                        div[data-testid="column"] button[key*="alt_btn_"] {
+                            background-color: #fc6794 !important;
+                            color: white !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                    
                     if st.button("🔄 Alternatives", key=f"alt_btn_{r.name}"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
-                    st.markdown('</div>', unsafe_allow_html=True)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
                     st.info(f"✨ Alternatives for **{p_name}**:")
@@ -345,7 +363,7 @@ if st.session_state.page == "shop":
             
             st.markdown(f"### 💵 Total Investment: **${total_cost:.2f}**")
             
-            if st.button("✅ Checkout Bundle", use_container_width=True):
+            if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", use_container_width=True):
                 st.balloons()
                 st.success("Your skincare bundle order is successfully placed!")
                 st.session_state.cart = {}
@@ -362,7 +380,7 @@ else:
         )
     with col_btn:
         st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🛒 Open Shop & Bundle", use_container_width=True):
+        if st.button("🛒 Open Shop & Bundle", key="open_shop_btn", use_container_width=True):
             st.session_state.page = "shop"
             st.rerun()
 
@@ -424,8 +442,8 @@ else:
 
     st.sidebar.markdown("---")
 
-    search_clicked = st.sidebar.button("Search", use_container_width=True)
-    sort_category_clicked = st.sidebar.button("Sort by Categories", use_container_width=True)
+    search_clicked = st.sidebar.button("Search", key="search_btn", use_container_width=True)
+    sort_category_clicked = st.sidebar.button("Sort by Categories", key="sort_cat_btn", use_container_width=True)
 
 
     # --- ОСНОВНА ЧАСТИНА ---
