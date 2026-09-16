@@ -129,7 +129,7 @@ div.stButton > button[kind="primary"]:hover {
     color: white !important;
 }
 
-/* Вторинні кнопки (Add, Alt тощо) кольору #fc6794 з чорним текстом */
+/* Вторинні кнопки (Add тощо) кольору #fc6794 з чорним текстом */
 div.stButton > button[kind="secondary"], div.stButton > button:not([kind="primary"]) {
     background-color: #fc6794 !important;
     color: black !important;
@@ -282,7 +282,8 @@ if st.session_state.page == "shop":
                         st.markdown("✅ Added")
                 
                 with col_alt:
-                    if st.button("🔄 Alt", key=f"alt_btn_{r.name}", type="secondary"):
+                    # Прибрано напис "Alt", залишилась лише іконка 🔄
+                    if st.button("🔄", key=f"alt_btn_{r.name}", type="secondary"):
                         st.session_state[f"show_alt_{r.name}"] = not st.session_state.get(f"show_alt_{r.name}", False)
                 
                 if st.session_state.get(f"show_alt_{r.name}", False):
