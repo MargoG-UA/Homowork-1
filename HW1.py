@@ -43,7 +43,6 @@ def load_data():
     file_path = os.path.join(base_dir, "cosmatics_dataset.csv")
     df = pd.read_csv(file_path)
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce').fillna(15.0)
-    # Приводимо Rank до чинного числового типу для коректного сортування
     df['Rank'] = pd.to_numeric(df['Rank'], errors='coerce').fillna(0.0)
     return df
 
@@ -81,7 +80,7 @@ if not st.session_state.splash_shown:
             st.image("welcome_poster.jpg", use_column_width=True)
         else:
             st.markdown(
-                "<h1 style='text-align: center; color: #950e4e;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
+                "<h1 style='text-align: center; color: black;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
                 unsafe_allow_html=True
             )
     
@@ -90,15 +89,23 @@ if not st.session_state.splash_shown:
     st.rerun()
 
 
-# --- КАСТОМІЗАЦІЯ ДИЗАЙНУ (CSS) ---
-floating_btn_css = """
+# --- ЧОРНО-БІЛИЙ ДИЗАЙН (CSS) ---
+bw_css = """
 <style>
+/* --- Загальні налаштування --- */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --accent-color: #000000; /* Чорний акцент для елементів */
+}
+
+/* --- Плаваюча кнопка коментарів --- */
 .floating-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: #950e4e !important;
-    color: white !important;
+    background-color: var(--accent-color) !important;
+    color: #ffffff !important;
     border-radius: 50%;
     width: 60px;
     height: 60px;
@@ -109,41 +116,41 @@ floating_btn_css = """
     z-index: 1000;
     text-decoration: none;
     transition: background-color 0.3s ease;
+    border: 2px solid var(--accent-color);
 }
 .floating-btn:hover {
-    background-color: #7a0b3f !important;
+    background-color: #333333 !important;
+    border-color: #333333 !important;
 }
 
+/* --- Кнопки --- */
 div.stButton > button {
-    background-color: #950e4e !important;
-    color: white !important;
+    background-color: var(--accent-color) !important;
+    color: #ffffff !important;
     border-radius: 8px !important;
-    border: none !important;
-    transition: background-color 0.3s ease;
+    border: 2px solid var(--accent-color) !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
 div.stButton > button p {
-    color: white !important;
+    color: #ffffff !important;
 }
 
 div.stButton > button:hover {
-    background-color: #7a0b3f !important;
-    color: white !important;
+    background-color: #ffffff !important;
+    color: var(--accent-color) !important;
+    border: 2px solid var(--accent-color) !important;
 }
 
-[data-testid="stNotification"] {
-    background-color: #ffe6f0 !important;
-    border: 1px solid #ffb3d1 !important;
-    color: #880e4f !important;
-    box-shadow: 0 0 10px rgba(252, 103, 148, 0.2);
+div.stButton > button:hover p {
+    color: var(--accent-color) !important;
 }
 
-[data-testid="stNotification"] p {
-    color: #880e4f !important;
-}
-
+/* --- Бокова панель --- */
 [data-testid="stSidebar"] > div:first-child {
-    background-color: #fc6794 !important;
+    background-color: #000000 !important; /* Чорний фон панелі */
+    color: #ffffff !important;
 }
 
 [data-testid="stSidebar"] h1,
@@ -151,38 +158,60 @@ div.stButton > button:hover {
 [data-testid="stSidebar"] h3,
 [data-testid="stSidebar"] label,
 [data-testid="stSidebar"] label p,
-[data-testid="stSidebar"] .stRadio p {
-    color: white !important;
+[data-testid="stSidebar"] .stRadio p,
+[data-testid="stSidebar"] .stSlider p,
+[data-testid="stSidebar"] .stMultiSelect p,
+[data-testid="stSidebar"] .stSelectbox p,
+[data-testid="stSidebar"] .stTextInput p {
+    color: #ffffff !important; /* Білий текст на чорній панелі */
 }
 
-[data-testid="stSidebar"] .stSlider div[data-testid="stTickBar"] > div,
-[data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMin"],
-[data-testid="stSidebar"] .stSlider div[data-testid="stTickBarMax"],
-[data-testid="stSidebar"] .stSlider p {
-    color: white !important;
+/* --- Елементи вводу на панелі --- */
+[data-testid="stSidebar"] [role="slider"] {
+    background-color: #ffffff !important;
 }
-
-[data-testid="stSidebar"] .stSlider [role="slider"] {
-    background-color: white !important;
-    border: 2px solid white !important;
-    box-shadow: none !important;
-}
-
-[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
-    background-color: white !important;
-}
-
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
-    background-color: rgba(255, 255, 255, 0.4) !important;
+    background-color: rgba(255,255,255,0.3) !important;
+}
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
+    background-color: #ffffff !important;
 }
 
-[data-testid="stSidebar"] [data-baseweb="select"] span {
-    color: #31333F !important;
+/* --- Повідомлення (st.info, st.success, st.warning, st.error) --- */
+[data-testid="stNotification"] {
+    background-color: #f0f0f0 !important; /* Світло-сірий фон */
+    border: 1px solid #cccccc !important;
+    color: #000000 !important;
 }
+[data-testid="stNotification"] p {
+    color: #000000 !important;
+}
+[data-testid="stNotification"] button {
+    color: #000000 !important;
+}
+
+/* --- Інші елементи --- */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color) !important;
+}
+hr {
+    border-top: 1px solid #cccccc !important;
+}
+a {
+    color: #555555 !important;
+}
+
+/* --- Поле вводу коментаря --- */
+[data-testid="stForm"] {
+    border: 1px solid #cccccc !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+}
+
 </style>
 """
 
-st.markdown(floating_btn_css, unsafe_allow_html=True)
+st.markdown(bw_css, unsafe_allow_html=True)
 if st.session_state.page == "main":
     st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
 
@@ -191,7 +220,7 @@ if st.session_state.page == "main":
 # РЕЖИМ 1: МАГАЗИН ТА РОЗРАХУНОК НАБОРУ
 # ==========================================
 if st.session_state.page == "shop":
-    st.markdown("<h1 style='color: #950e4e;'>🛒 Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='color: black;'>Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
     
     if st.button("⬅️ Back to Main Assistant", key="back_main_btn"):
         st.session_state.page = "main"
@@ -348,216 +377,4 @@ if st.session_state.page == "shop":
             if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", use_container_width=True):
                 st.balloons()
                 st.success("Your skincare bundle order is successfully placed!")
-                st.session_state.cart = {}
-
-# ==========================================
-# РЕЖИМ 2: ГОЛОВНА СТОРІНКА (ПОШУК ТА ДІАГРАМА)
-# ==========================================
-else:
-    col_title, col_btn = st.columns([2.2, 1.8])
-    with col_title:
-        st.markdown(
-            "<h1 style='color: #950e4e; margin-top: 0;'>Your personal assistant to make a great product choice</h1>", 
-            unsafe_allow_html=True
-        )
-    with col_btn:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("🛒 Open Shop & Bundle", key="open_shop_btn", use_container_width=True):
-            st.session_state.page = "shop"
-            st.rerun()
-
-    # --- БОКОВА ПАНЕЛЬ (ФІЛЬТРИ ЗЛІВА) ---
-    st.sidebar.header("Filters")
-
-    product_types = sorted(list(df['Label'].unique()))
-    selected_products = st.sidebar.multiselect(
-        "Which type of product do you want?",
-        options=product_types
-    )
-
-    if selected_products:
-        ingredients_source_df = df[df['Label'].isin(selected_products)]
-    else:
-        ingredients_source_df = df
-
-    all_unique_ingredients = get_all_ingredients(ingredients_source_df)
-
-    skin_types = ['Combination', 'Dry', 'Normal', 'Oily', 'Sensitive']
-    selected_skins = st.sidebar.multiselect(
-        "Skin type:", 
-        options=skin_types
-    )
-
-    all_brands = sorted(df['Brand'].dropna().unique())
-    selected_brands = st.sidebar.multiselect(
-        "Brands:",
-        options=all_brands
-    )
-
-    selected_allergies = st.sidebar.multiselect(
-        "Avoided ingredients:",
-        options=all_unique_ingredients
-    )
-
-    if selected_brands:
-        price_df = df[df['Brand'].isin(selected_brands)]
-    else:
-        price_df = df
-
-    min_price = int(price_df['Price'].min())
-    max_price = int(price_df['Price'].max())
-
-    if min_price == max_price:
-        max_price += 1
-
-    selected_price_range = st.sidebar.slider(
-        "Price range ($):",
-        min_value=min_price,
-        max_value=max_price,
-        value=(min_price, max_price)
-    )
-
-    sort_option = st.sidebar.radio(
-        "Sort by:",
-        ("relevance", "price increase", "price decrease")
-    )
-
-    st.sidebar.markdown("---")
-
-    search_clicked = st.sidebar.button("Search", key="search_btn", use_container_width=True)
-
-
-    # --- ОСНОВНА ЧАСТИНА ---
-
-    # 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА З ФІКСОВАНИМИ КОЛЬОРАМИ ТА ПІДСВІТКОЮ
-    category_counts = df['Label'].value_counts().reset_index()
-    category_counts.columns = ['Category', 'Count']
-
-    fixed_colors = {
-        'Moisturizer': '#880e4f',
-        'Cleanser': '#ad1457',
-        'Face Mask': '#d81b60',
-        'Treatment': '#e91e63',
-        'Eye cream': '#ec407a',
-        'Sun protect': '#f06292'
-    }
-
-    def get_sector_color(row):
-        cat = row['Category']
-        base_color = fixed_colors.get(cat, '#950e4e')
-        
-        if not selected_products or cat in selected_products:
-            return base_color
-        else:
-            h = base_color.lstrip('#')
-            rgb = tuple(int(h[j:j+2], 16) for j in (0, 2, 4))
-            return f'rgba({rgb[0]}, {rgb[1]}, {rgb[2]}, 0.25)'
-
-    category_counts['Color'] = category_counts.apply(get_sector_color, axis=1)
-
-    fig = px.pie(
-        category_counts, 
-        names='Category', 
-        values='Count', 
-        hole=0.4,
-        color='Category',
-        color_discrete_map=fixed_colors
-    )
-
-    fig.update_traces(
-        textposition='inside', 
-        textinfo='percent+label',
-        textfont=dict(color='white'),
-        marker=dict(
-            colors=category_counts['Color'],
-            line=dict(color='#ffffff', width=2)
-        )
-    )
-
-    fig.update_layout(
-        margin=dict(t=10, b=10, l=10, r=10),
-        height=400,
-        showlegend=True,
-        transition=dict(duration=500, easing='cubic-in-out')
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-    st.markdown("---")
-
-
-    # 2. РЕЗУЛЬТАТИ ПОШУКУ
-    if search_clicked:
-
-        with st.spinner('Choosing the best for you...'):
-            time.sleep(0.6)
-
-            filtered_df = df.copy()
-
-            if selected_products:
-                filtered_df = filtered_df[filtered_df['Label'].isin(selected_products)]
-
-            if selected_skins:
-                for skin in selected_skins:
-                    filtered_df = filtered_df[filtered_df[skin] == 1]
-
-            if selected_brands:
-                filtered_df = filtered_df[filtered_df['Brand'].isin(selected_brands)]
-
-            if selected_allergies:
-                for allergy in selected_allergies:
-                     filtered_df = filtered_df[
-                        ~filtered_df['Ingredients'].str.lower().str.contains(allergy, na=False, regex=False)]
-
-            filtered_df = filtered_df[
-                (filtered_df['Price'] >= selected_price_range[0]) &
-                (filtered_df['Price'] <= selected_price_range[1])
-                ]
-
-            # Логіка сортування
-            if sort_option == "relevance":
-                filtered_df = filtered_df.sort_values(by="Rank", ascending=False)
-            elif sort_option == "price increase":
-                filtered_df = filtered_df.sort_values(by="Price", ascending=True)
-            elif sort_option == "price decrease":
-                filtered_df = filtered_df.sort_values(by="Price", ascending=False)
-
-        if not filtered_df.empty:
-            st.success(f"Products found: {len(filtered_df)}")
-            
-            for index, row in filtered_df.iterrows():
-                st.markdown(f"### {row['Name']} ({row['Brand']})")
-                st.write(f"🧴 **Category:** {row['Label']} | 💵 **Price:** ${row['Price']} | ⭐ **Rate:** {row.get('Rank', 'NO DATA')}")
-                st.markdown("---")
-        else:
-            st.error("Unfortunately, we don't have any data about this product. Please change the parameters.")
-
-    st.markdown("<br><br>", unsafe_allow_html=True)
-
-    # Якір та секція коментарів лише на головній сторінці
-    st.markdown('<div id="comments-section"></div>', unsafe_allow_html=True)
-
-    st.subheader("Comments")
-    st.write("Haven't found your favourite product? Have an idea for development? Text us!")
-
-    # Форма коментарів
-    with st.form("comment_form", clear_on_submit=True):
-        user_name = st.text_input("Name (not necessarily):")
-        new_comment = st.text_area("your comment:")
-        submit_button = st.form_submit_button("send")
-
-        if submit_button:
-            if new_comment.strip():
-                name_to_display = user_name.strip() if user_name.strip() else "Anonymous"
-                
-                st.session_state.comments.append({"name": name_to_display, "text": new_comment})
-                save_comments(st.session_state.comments)
-
-                st.balloons()
-                st.success("The comment is successfully added!")
-            else:
-                st.warning("The comment can't be empty.")
-
-    if st.session_state.comments:
-        st.markdown("#### Comments:")
-        for c in reversed(st.session_state.comments):
-            st.info(f"**{c['name']}**: {c['text']}")
+                st.
