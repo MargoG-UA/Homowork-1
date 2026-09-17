@@ -89,12 +89,38 @@ if not st.session_state.splash_shown:
     st.rerun()
 
 
-# --- ТЕМНА ТЕМА ДИЗАЙНУ (CSS) ---
+# --- РОЗШИРЕНИЙ ТЕМНИЙ СТИЛЬ ДЛЯ ВСЬОГО ІНТЕРФЕЙСУ (CSS) ---
 dark_theme_css = """
 <style>
-/* --- Базові налаштування темної теми --- */
+/* Загальний фон сторінки */
 .stApp {
     background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+/* Примусово робимо всі текстові елементи білими у темній темі */
+h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stText {
+    color: #ffffff !important;
+}
+
+/* Кнопки */
+div.stButton > button {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-radius: 8px !important;
+    border: 2px solid #ffffff !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+div.stButton > button p {
+    color: #000000 !important;
+}
+div.stButton > button:hover {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+}
+div.stButton > button:hover p {
     color: #ffffff !important;
 }
 
@@ -121,30 +147,6 @@ dark_theme_css = """
     background-color: #dddddd !important;
 }
 
-/* Кнопки у темній темі (білі з чорним текстом) */
-div.stButton > button {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border-radius: 8px !important;
-    border: 2px solid #ffffff !important;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-div.stButton > button p {
-    color: #000000 !important;
-}
-
-div.stButton > button:hover {
-    background-color: #121212 !important;
-    color: #ffffff !important;
-    border: 2px solid #ffffff !important;
-}
-
-div.stButton > button:hover p {
-    color: #ffffff !important;
-}
-
 /* Бокова панель */
 [data-testid="stSidebar"] > div:first-child {
     background-color: #1e1e1e !important;
@@ -164,7 +166,7 @@ div.stButton > button:hover p {
     color: #ffffff !important;
 }
 
-/* Елементи керування на боковій панелі та полях вводу */
+/* Слайдери на боковій панелі */
 [data-testid="stSidebar"] [role="slider"] {
     background-color: #ffffff !important;
 }
@@ -188,23 +190,19 @@ div.stButton > button:hover p {
     color: #ffffff !important;
 }
 
-/* Тексти та заголовки */
-h1, h2, h3, h4, h5, h6, p, span {
-    color: #ffffff !important;
-}
-hr {
-    border-top: 1px solid #333333 !important;
-}
-a {
-    color: #aaaaaa !important;
-}
-
 /* Форми вводу */
 [data-testid="stForm"] {
     border: 1px solid #333333 !important;
     background-color: #1e1e1e !important;
     padding: 15px !important;
     border-radius: 8px !important;
+}
+
+hr {
+    border-top: 1px solid #333333 !important;
+}
+a {
+    color: #aaaaaa !important;
 }
 </style>
 """
@@ -456,7 +454,7 @@ else:
 
     # --- ОСНОВНА ЧАСТИНА ---
 
-    # 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА (КОЛЬОРИ ЗБЕРЕЖЕНО)
+    # 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА (ЗБЕРЕЖЕНО КОЛЬОРИ СЕКТОРІВ)
     category_counts = df['Label'].value_counts().reset_index()
     category_counts.columns = ['Category', 'Count']
 
@@ -497,7 +495,7 @@ else:
         textfont=dict(color='white'),
         marker=dict(
             colors=category_counts['Color'],
-            line=dict(color='#ffffff', width=2)
+            line=dict(color='#121212', width=2)
         )
     )
 
