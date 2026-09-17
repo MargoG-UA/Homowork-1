@@ -92,14 +92,12 @@ if not st.session_state.splash_shown:
 # --- ЧОРНО-БІЛИЙ ДИЗАЙН (CSS) ---
 bw_css = """
 <style>
-/* --- Загальні налаштування --- */
 :root {
     --bg-color: #ffffff;
     --text-color: #000000;
-    --accent-color: #000000; /* Чорний акцент для елементів */
+    --accent-color: #000000;
 }
 
-/* --- Плаваюча кнопка коментарів --- */
 .floating-btn {
     position: fixed;
     bottom: 30px;
@@ -123,7 +121,6 @@ bw_css = """
     border-color: #333333 !important;
 }
 
-/* --- Кнопки --- */
 div.stButton > button {
     background-color: var(--accent-color) !important;
     color: #ffffff !important;
@@ -147,9 +144,8 @@ div.stButton > button:hover p {
     color: var(--accent-color) !important;
 }
 
-/* --- Бокова панель --- */
 [data-testid="stSidebar"] > div:first-child {
-    background-color: #000000 !important; /* Чорний фон панелі */
+    background-color: #000000 !important;
     color: #ffffff !important;
 }
 
@@ -163,10 +159,9 @@ div.stButton > button:hover p {
 [data-testid="stSidebar"] .stMultiSelect p,
 [data-testid="stSidebar"] .stSelectbox p,
 [data-testid="stSidebar"] .stTextInput p {
-    color: #ffffff !important; /* Білий текст на чорній панелі */
+    color: #ffffff !important;
 }
 
-/* --- Елементи вводу на панелі --- */
 [data-testid="stSidebar"] [role="slider"] {
     background-color: #ffffff !important;
 }
@@ -177,9 +172,8 @@ div.stButton > button:hover p {
     background-color: #ffffff !important;
 }
 
-/* --- Повідомлення (st.info, st.success, st.warning, st.error) --- */
 [data-testid="stNotification"] {
-    background-color: #f0f0f0 !important; /* Світло-сірий фон */
+    background-color: #f0f0f0 !important;
     border: 1px solid #cccccc !important;
     color: #000000 !important;
 }
@@ -190,7 +184,6 @@ div.stButton > button:hover p {
     color: #000000 !important;
 }
 
-/* --- Інші елементи --- */
 h1, h2, h3, h4, h5, h6 {
     color: var(--text-color) !important;
 }
@@ -201,13 +194,11 @@ a {
     color: #555555 !important;
 }
 
-/* --- Поле вводу коментаря --- */
 [data-testid="stForm"] {
     border: 1px solid #cccccc !important;
     padding: 15px !important;
     border-radius: 8px !important;
 }
-
 </style>
 """
 
@@ -220,7 +211,7 @@ if st.session_state.page == "main":
 # РЕЖИМ 1: МАГАЗИН ТА РОЗРАХУНОК НАБОРУ
 # ==========================================
 if st.session_state.page == "shop":
-    st.markdown("<h1 style='color: black;'>Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>Cosmetic Shop & Bundle Calculator</h1>", unsafe_allow_html=True)
     
     if st.button("⬅️ Back to Main Assistant", key="back_main_btn"):
         st.session_state.page = "main"
@@ -313,68 +304,3 @@ if st.session_state.page == "shop":
                             if st.button(f"Switch to: {alt_name} (${alt_price})", key=f"switch_{r.name}_{alt_r.name}"):
                                 old_months = st.session_state.cart.get(p_name, {}).get('months', 3)
                                 if p_name in st.session_state.cart:
-                                    del st.session_state.cart[p_name]
-                                st.session_state.cart[alt_name] = {
-                                    'row': alt_r.to_dict(), 
-                                    'category': chosen_category, 
-                                    'months': old_months
-                                }
-                                st.success(f"Switched to {alt_name}!")
-                                st.rerun()
-
-            if len(display_df) > 10 and selected_specific_product == "— View all products in category —":
-                st.caption(f"Showing first 10 items out of {len(display_df)}. Select a specific product above to filter directly.")
-
-    with col_shop2:
-        st.subheader("🛍️ Your Bundle & Cart")
-        
-        if not st.session_state.cart:
-            st.info("Your cart is empty. Select products on the left.")
-        else:
-            st.write(f"Items in bundle: **{len(st.session_state.cart)}**")
-            st.markdown("---")
-            
-            total_cost = 0
-            standard_duration_months = 2.0  
-            
-            for p_name in list(st.session_state.cart.keys()):
-                item_data = st.session_state.cart[p_name]
-                p_row = item_data['row']
-                
-                st.markdown(f"### {p_name}")
-                
-                desired_months = st.slider(
-                    f"How many months do you need?", 
-                    min_value=1, 
-                    max_value=12, 
-                    value=item_data.get('months', 3), 
-                    key=f"slider_months_{p_name}"
-                )
-                
-                st.session_state.cart[p_name]['months'] = desired_months
-                
-                ratio = desired_months / standard_duration_months
-                packs_multiplier = math.ceil(ratio)
-                
-                st.write(f"Standard product duration: **{int(standard_duration_months)}** months")
-                st.write(f"Required packs per item: **{packs_multiplier}** pack(s) (rounded up)")
-                
-                item_total = p_row['Price'] * packs_multiplier
-                total_cost += item_total
-                
-                col_price, col_del = st.columns([3, 1])
-                with col_price:
-                    st.write(f"${p_row['Price']} × {packs_multiplier} = **${item_total:.2f}**")
-                with col_del:
-                    if st.button("✕", key=f"del_cart_{p_name}"):
-                        del st.session_state.cart[p_name]
-                        st.rerun()
-                
-                st.markdown("---")
-            
-            st.markdown(f"### 💵 Total Investment: **${total_cost:.2f}**")
-            
-            if st.button("✅ Checkout Bundle", key="checkout_bundle_btn", use_container_width=True):
-                st.balloons()
-                st.success("Your skincare bundle order is successfully placed!")
-                st.
