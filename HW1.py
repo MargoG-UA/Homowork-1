@@ -80,7 +80,7 @@ if not st.session_state.splash_shown:
             st.image("welcome_poster.jpg", use_column_width=True)
         else:
             st.markdown(
-                "<h1 style='text-align: center; color: #950e4e;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
+                "<h1 style='text-align: center; color: black;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
                 unsafe_allow_html=True
             )
     
@@ -89,178 +89,120 @@ if not st.session_state.splash_shown:
     st.rerun()
 
 
-# --- ВИБІР ТЕМИ У БОКОВІЙ ПАНЕЛІ ---
-st.sidebar.header("Appearance")
-dark_mode = st.sidebar.toggle("Dark Theme", value=False)
+# --- ЧОРНО-БІЛИЙ ДИЗАЙН (CSS) ---
+bw_css = """
+<style>
+:root {
+    --bg-color: #ffffff;
+    --text-color: #000000;
+    --accent-color: #000000;
+}
 
-# Динамічні стилі залежно від вибраної теми
-if dark_mode:
-    theme_css = """
-    <style>
-    .stApp {
-        background-color: #121212 !important;
-        color: #ffffff !important;
-    }
-    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stText {
-        color: #ffffff !important;
-    }
-    div.stButton > button {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 8px !important;
-        border: 2px solid #ffffff !important;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-    div.stButton > button p {
-        color: #000000 !important;
-    }
-    div.stButton > button:hover {
-        background-color: #121212 !important;
-        color: #ffffff !important;
-        border: 2px solid #ffffff !important;
-    }
-    div.stButton > button:hover p {
-        color: #ffffff !important;
-    }
-    .floating-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        text-align: center;
-        box-shadow: 2px 2px 15px rgba(255,255,255,0.1);
-        font-size: 30px;
-        line-height: 60px;
-        z-index: 1000;
-        text-decoration: none;
-        border: 2px solid #ffffff;
-    }
-    .floating-btn:hover {
-        background-color: #dddddd !important;
-    }
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #1e1e1e !important;
-        color: #ffffff !important;
-    }
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] label p,
-    [data-testid="stSidebar"] .stRadio p,
-    [data-testid="stSidebar"] .stSlider p,
-    [data-testid="stSidebar"] .stMultiSelect p,
-    [data-testid="stSidebar"] .stSelectbox p,
-    [data-testid="stSidebar"] .stTextInput p {
-        color: #ffffff !important;
-    }
-    [data-testid="stNotification"] {
-        background-color: #1e1e1e !important;
-        border: 1px solid #333333 !important;
-        color: #ffffff !important;
-    }
-    [data-testid="stNotification"] p {
-        color: #ffffff !important;
-    }
-    [data-testid="stForm"] {
-        border: 1px solid #333333 !important;
-        background-color: #1e1e1e !important;
-        padding: 15px !important;
-        border-radius: 8px !important;
-    }
-    hr { border-top: 1px solid #333333 !important; }
-    a { color: #aaaaaa !important; }
-    </style>
-    """
-else:
-    theme_css = """
-    <style>
-    .stApp {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-    }
-    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stText {
-        color: #000000 !important;
-    }
-    div.stButton > button {
-        background-color: #000000 !important;
-        color: #ffffff !important;
-        border-radius: 8px !important;
-        border: 2px solid #000000 !important;
-        transition: all 0.3s ease;
-        font-weight: 500;
-    }
-    div.stButton > button p {
-        color: #ffffff !important;
-    }
-    div.stButton > button:hover {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border: 2px solid #000000 !important;
-    }
-    div.stButton > button:hover p {
-        color: #000000 !important;
-    }
-    .floating-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #000000 !important;
-        color: #ffffff !important;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        text-align: center;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-        font-size: 30px;
-        line-height: 60px;
-        z-index: 1000;
-        text-decoration: none;
-        border: 2px solid #000000;
-    }
-    .floating-btn:hover {
-        background-color: #333333 !important;
-    }
-    [data-testid="stSidebar"] > div:first-child {
-        background-color: #000000 !important;
-        color: #ffffff !important;
-    }
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] label p,
-    [data-testid="stSidebar"] .stRadio p,
-    [data-testid="stSidebar"] .stSlider p,
-    [data-testid="stSidebar"] .stMultiSelect p,
-    [data-testid="stSidebar"] .stSelectbox p,
-    [data-testid="stSidebar"] .stTextInput p {
-        color: #ffffff !important;
-    }
-    [data-testid="stNotification"] {
-        background-color: #f0f0f0 !important;
-        border: 1px solid #cccccc !important;
-        color: #000000 !important;
-    }
-    [data-testid="stNotification"] p {
-        color: #000000 !important;
-    }
-    [data-testid="stForm"] {
-        border: 1px solid #cccccc !important;
-        padding: 15px !important;
-        border-radius: 8px !important;
-    }
-    hr { border-top: 1px solid #cccccc !important; }
-    a { color: #555555 !important; }
-    </style>
-    """
+.floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: var(--accent-color) !important;
+    color: #ffffff !important;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    font-size: 30px;
+    line-height: 60px;
+    z-index: 1000;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    border: 2px solid var(--accent-color);
+}
+.floating-btn:hover {
+    background-color: #333333 !important;
+    border-color: #333333 !important;
+}
 
-st.markdown(theme_css, unsafe_allow_html=True)
+div.stButton > button {
+    background-color: var(--accent-color) !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    border: 2px solid var(--accent-color) !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+div.stButton > button p {
+    color: #ffffff !important;
+}
+
+div.stButton > button:hover {
+    background-color: #ffffff !important;
+    color: var(--accent-color) !important;
+    border: 2px solid var(--accent-color) !important;
+}
+
+div.stButton > button:hover p {
+    color: var(--accent-color) !important;
+}
+
+[data-testid="stSidebar"] > div:first-child {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] label p,
+[data-testid="stSidebar"] .stRadio p,
+[data-testid="stSidebar"] .stSlider p,
+[data-testid="stSidebar"] .stMultiSelect p,
+[data-testid="stSidebar"] .stSelectbox p,
+[data-testid="stSidebar"] .stTextInput p {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] [role="slider"] {
+    background-color: #ffffff !important;
+}
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
+    background-color: rgba(255,255,255,0.3) !important;
+}
+[data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
+    background-color: #ffffff !important;
+}
+
+[data-testid="stNotification"] {
+    background-color: #f0f0f0 !important;
+    border: 1px solid #cccccc !important;
+    color: #000000 !important;
+}
+[data-testid="stNotification"] p {
+    color: #000000 !important;
+}
+[data-testid="stNotification"] button {
+    color: #000000 !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-color) !important;
+}
+hr {
+    border-top: 1px solid #cccccc !important;
+}
+a {
+    color: #555555 !important;
+}
+
+[data-testid="stForm"] {
+    border: 1px solid #cccccc !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
+}
+</style>
+"""
+
+st.markdown(bw_css, unsafe_allow_html=True)
 if st.session_state.page == "main":
     st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
 
@@ -507,7 +449,7 @@ else:
 
     # --- ОСНОВНА ЧАСТИНА ---
 
-    # 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА (КОЛЬОРИ СЕКТОРІВ ЗБЕРЕЖЕНО)
+    # 1. ДИНАМІЧНА КРУГОВА ДІАГРАМА (КОЛЬОРИ ЗБЕРЕЖЕНО)
     category_counts = df['Label'].value_counts().reset_index()
     category_counts.columns = ['Category', 'Count']
 
@@ -548,14 +490,11 @@ else:
         textfont=dict(color='white'),
         marker=dict(
             colors=category_counts['Color'],
-            line=dict(color='#121212' if dark_mode else '#ffffff', width=2)
+            line=dict(color='#ffffff', width=2)
         )
     )
 
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='#ffffff' if dark_mode else '#000000'),
         margin=dict(t=10, b=10, l=10, r=10),
         height=400,
         showlegend=True,
