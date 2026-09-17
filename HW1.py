@@ -80,7 +80,7 @@ if not st.session_state.splash_shown:
             st.image("welcome_poster.jpg", use_column_width=True)
         else:
             st.markdown(
-                "<h1 style='text-align: center; color: black;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
+                "<h1 style='text-align: center; color: #ffffff;'>YOU'RE AMAZING, AWESOME, FABULOUS!</h1>", 
                 unsafe_allow_html=True
             )
     
@@ -89,63 +89,65 @@ if not st.session_state.splash_shown:
     st.rerun()
 
 
-# --- ЧОРНО-БІЛИЙ ДИЗАЙН (CSS) ---
-bw_css = """
+# --- ТЕМНА ТЕМА ДИЗАЙНУ (CSS) ---
+dark_theme_css = """
 <style>
-:root {
-    --bg-color: #ffffff;
-    --text-color: #000000;
-    --accent-color: #000000;
+/* --- Базові налаштування темної теми --- */
+.stApp {
+    background-color: #121212 !important;
+    color: #ffffff !important;
 }
 
+/* Плаваюча кнопка коментарів */
 .floating-btn {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    background-color: var(--accent-color) !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     border-radius: 50%;
     width: 60px;
     height: 60px;
     text-align: center;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+    box-shadow: 2px 2px 15px rgba(255,255,255,0.1);
     font-size: 30px;
     line-height: 60px;
     z-index: 1000;
     text-decoration: none;
     transition: background-color 0.3s ease;
-    border: 2px solid var(--accent-color);
+    border: 2px solid #ffffff;
 }
 .floating-btn:hover {
-    background-color: #333333 !important;
-    border-color: #333333 !important;
+    background-color: #dddddd !important;
 }
 
+/* Кнопки у темній темі (білі з чорним текстом) */
 div.stButton > button {
-    background-color: var(--accent-color) !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     border-radius: 8px !important;
-    border: 2px solid var(--accent-color) !important;
+    border: 2px solid #ffffff !important;
     transition: all 0.3s ease;
     font-weight: 500;
 }
 
 div.stButton > button p {
-    color: #ffffff !important;
+    color: #000000 !important;
 }
 
 div.stButton > button:hover {
-    background-color: #ffffff !important;
-    color: var(--accent-color) !important;
-    border: 2px solid var(--accent-color) !important;
+    background-color: #121212 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
 }
 
 div.stButton > button:hover p {
-    color: var(--accent-color) !important;
+    color: #ffffff !important;
 }
 
+/* Бокова панель */
 [data-testid="stSidebar"] > div:first-child {
-    background-color: #000000 !important;
+    background-color: #1e1e1e !important;
     color: #ffffff !important;
 }
 
@@ -162,47 +164,52 @@ div.stButton > button:hover p {
     color: #ffffff !important;
 }
 
+/* Елементи керування на боковій панелі та полях вводу */
 [data-testid="stSidebar"] [role="slider"] {
     background-color: #ffffff !important;
 }
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child {
-    background-color: rgba(255,255,255,0.3) !important;
+    background-color: rgba(255,255,255,0.2) !important;
 }
 [data-testid="stSidebar"] .stSlider [data-baseweb="slider"] > div > div:first-child > div {
     background-color: #ffffff !important;
 }
 
+/* Повідомлення (st.info, st.success, тощо) */
 [data-testid="stNotification"] {
-    background-color: #f0f0f0 !important;
-    border: 1px solid #cccccc !important;
-    color: #000000 !important;
+    background-color: #1e1e1e !important;
+    border: 1px solid #333333 !important;
+    color: #ffffff !important;
 }
 [data-testid="stNotification"] p {
-    color: #000000 !important;
+    color: #ffffff !important;
 }
 [data-testid="stNotification"] button {
-    color: #000000 !important;
+    color: #ffffff !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: var(--text-color) !important;
+/* Тексти та заголовки */
+h1, h2, h3, h4, h5, h6, p, span {
+    color: #ffffff !important;
 }
 hr {
-    border-top: 1px solid #cccccc !important;
+    border-top: 1px solid #333333 !important;
 }
 a {
-    color: #555555 !important;
+    color: #aaaaaa !important;
 }
 
+/* Форми вводу */
 [data-testid="stForm"] {
-    border: 1px solid #cccccc !important;
+    border: 1px solid #333333 !important;
+    background-color: #1e1e1e !important;
     padding: 15px !important;
     border-radius: 8px !important;
 }
 </style>
 """
 
-st.markdown(bw_css, unsafe_allow_html=True)
+st.markdown(dark_theme_css, unsafe_allow_html=True)
 if st.session_state.page == "main":
     st.markdown('<a href="#comments-section" class="floating-btn" title="Go to Comments">💬</a>', unsafe_allow_html=True)
 
@@ -495,6 +502,9 @@ else:
     )
 
     fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='white'),
         margin=dict(t=10, b=10, l=10, r=10),
         height=400,
         showlegend=True,
